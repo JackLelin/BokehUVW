@@ -19,11 +19,11 @@ def page2():
        
     #RTI Layout
     RTI_plot = column(RTI())
-    RTI_layout = column([RTI_plot,  init.RTI_slider, init.RTI_color_menu])
+    RTI_layout = column([RTI_plot, init.RTI_color_menu])
     
     #UVW Layout
     UVW_plot = column(UVW())
-    UVW_layout = column([UVW_plot, init.U_slider, init.V_slider, init.W_slider, init.UVW_color_menu])
+    UVW_layout = column([UVW_plot, init.UVW_color_menu])
     
     #Clear current document and add page2 w/RTI Tab
     

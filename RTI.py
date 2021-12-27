@@ -165,6 +165,6 @@ def RTI():
 
     print(t_start, t_end)
     RTI_plot = RTI_plotting( snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
-    RTI_layout = row([column(RTI_plot), column(init.sps), column(init.textboxes)])
+    RTI_layout = row([column([RTI_plot, init.RTI_slider]), column(init.sps), column(init.textboxes)])
     
     return RTI_layout

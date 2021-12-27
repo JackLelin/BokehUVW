@@ -125,5 +125,5 @@ def UVW():
     print(t_start, t_end)
     #call the plotting function and return the layout with everything on 
     UVW_plot = UVW_plotting(U, V, W)
-    UVW_layout = row([UVW_plot, column(init.sps), column(init.textboxes)])
+    UVW_layout = row([column([UVW_plot,init.U_slider, init.V_slider, init.W_slider]), column(init.sps), column(init.textboxes)])
     return UVW_layout
