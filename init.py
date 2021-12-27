@@ -1,10 +1,11 @@
-from bokeh.models import  Select,  RangeSlider, CheckboxButtonGroup, CustomJS
+from bokeh.models import  Select,  RangeSlider, Button, CustomJS
 from bokeh.io import curdoc
 import numpy as np
 from spc import spcs
 
 #initializing a dummy variable date just for the webpage to run, this is changed when the user selects a year and date
 
+print('init.py was run by bokeh ***********************')
 dname = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min"
 date = "2017.04.20" 
 yyyy = "2017"
@@ -39,11 +40,14 @@ h_diff = h_max - h_min + offset
 
 colors = ['RdBu', 'plasma', 'viridis', 'gray', 'jet', 'RdBu_r']
 
-def HomeReset(even):
-    curdoc.remove_root()
-Home = CheckboxButtonGroup(labels=['Home'], active=[], width = 200)
-Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
+def HomeReset(event):
+    print('Button activated: resetting')
+    curdoc().clear()
+
+Home = Button(label='Home', width = 200)
 Home.on_click(HomeReset)
+Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
+
  
 #Colorbars
 UVW_color_menu = Select(options = colors, value = colors[0], title = 'Color', width = 500)
@@ -64,7 +68,6 @@ RTI_slider = RangeSlider(start=rti_low, end=rti_high, value=(rti_low,rti_high), 
 U_slider = RangeSlider(start=u_low, end=u_high, value=(u_low,u_high), step=.1, title="Eastern Wind Range (m/s)", width = 300)
 V_slider = RangeSlider(start=v_low, end=v_high, value=(v_low,v_high), step=.1, title="Northern Wind Range (m/s)", width = 300)
 W_slider = RangeSlider(start=w_low, end=w_high, value=(w_low,w_high), step=.1, title="Upward Wind Range (m/s)", width = 300)
-
 
 c = 0
 

@@ -38,8 +38,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
         init.h_min = new
     def y_end(attr, old, new):
         init.h_max = new
-        init.UVW_layout = column()
-        RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3, init.t_min, init.t_max)
+        RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
     
     dw = init.t_max - init.t_min
     dh = init.h_max - init.h_min
@@ -113,7 +112,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     plot_ch0.xaxis.axis_label = "Local Time (hour)"
     plot_ch0.yaxis.axis_label_text_font_style = "normal"
     plot_ch0.yaxis.axis_label = "Range (km)"
-    # plot_ch0.on_event(Tap, windmap_handler)
+    plot_ch0.on_event(Tap, windmap_handler)
     
     plot_ch1.image(image=[snrdB_map_ch1.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)
     plot_ch1.title.text = "West Beam SNR Map " + str(date) 
@@ -122,7 +121,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     plot_ch1.xaxis.axis_label = "Local Time (hour)"
     plot_ch1.yaxis.axis_label_text_font_style = "normal"
     plot_ch1.yaxis.axis_label = "Range (km)"
-    # plot_ch1.on_event(Tap, windmap_handler)
+    plot_ch1.on_event(Tap, windmap_handler)
     
     plot_ch2.image(image=[snrdB_map_ch2.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)
     plot_ch2.title.text = "South Beam SNR Map " + str(date) 
@@ -131,7 +130,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     plot_ch2.xaxis.axis_label = "Local Time (hour)"
     plot_ch2.yaxis.axis_label_text_font_style = "normal"
     plot_ch2.yaxis.axis_label = "Range (km)"
-    # plot_ch2.on_event(Tap, windmap_handler)
+    plot_ch2.on_event(Tap, windmap_handler)
     
     plot_ch3.image(image=[snrdB_map_ch3.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)
     plot_ch3.title.text = "Vertical Beam SNR Map " + str(date) 
@@ -140,7 +139,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     plot_ch3.xaxis.axis_label = "Local Time (hour)"
     plot_ch3.yaxis.axis_label_text_font_style = "normal"
     plot_ch3.yaxis.axis_label = "Range (km)"
-    # plot_ch3.on_event(Tap, windmap_handler)
+    plot_ch3.on_event(Tap, windmap_handler)
     
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
