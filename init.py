@@ -14,29 +14,10 @@ dd = "20"
 
 sps, textboxes = spcs('')
 
-# years = sorted(glob1(dname, "*"))
-# year_menu = [(year, year) for year in years]
-
-#datapath load
-dpath_snr = dname + "/" + yyyy + "/Maps/fitmap_" + date + ".npz" 
-g = np.load(dpath_snr)
-acqUTCtime = g['acqUTCtime']
-"""Change UTC to local time (Peru)."""
-localTime = acqUTCtime - 5*3600
-"""Constrain time to 24 hours."""
-localTime = localTime % (24*3600)
-
-
-t_min = float(min(localTime)/3600)
-t_max = float(max(localTime)/3600)
-offset = (localTime[1]-localTime[0])/3600 - 0.297
-t_diff = t_max - t_min + offset
-
-hts = g['hts']
-h_min = min(hts) - .075
-h_max = max(hts) - .3 + .75
-offset = hts[1] - hts[0] - 0.0002748959
-h_diff = h_max - h_min + offset
+t_min = 6
+t_max = 19
+h_min = 60 - .15/2 #Offset for accuracy
+h_max = 89.7 + .15/2 #Offset for accuracy and maxed at 89.7 for UVW(2 less pts than RTI)
 
 colors = ['RdBu', 'plasma', 'viridis', 'gray', 'jet', 'RdBu_r']
 
@@ -44,7 +25,7 @@ def HomeReset(event):
     print('Button activated: resetting')
     curdoc().clear()
 
-Home = Button(label='Home', width = 200)
+Home = Button(label='Home', width = 200, button_type="success")
 Home.on_click(HomeReset)
 Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
 

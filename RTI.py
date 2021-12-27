@@ -15,30 +15,7 @@ import init
 def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     color = init.RTI_color_menu.value
     date = init.date
-    low = init.RTI_slider.value[0]
-    high = init.RTI_slider.value[1]
-
-    def reset(): #Manual Reset
-        init.t_min = 6
-        init.t_max = 19
-        init.h_min = 60 - .15/2 #Offset for accuracy
-        init.h_max = 89.7 + .15/2 #Offset for accuracy and maxed at 89.7 for UVW(2 less pts than RTI)
-        
-        #Regenerate the RTI layout
-        RTI_plot = RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
-        RTI_layout = row([column([RTI_plot,  init.RTI_slider]), column(init.sps), column(init.textboxes)])
-        init.RTI_layout.children[-1:] = [column(init.button_layout, RTI_layout, init.RTI_color_menu)]
-    
-    #Callbacks for change in coordinate(either when user zooms or pans)
-    def x_start(attr, old, new):
-        init.t_min = new
-    def x_end(attr, old, new):
-        init.t_max = new
-    def y_start(attr, old, new):
-        init.h_min = new
-    def y_end(attr, old, new):
-        init.h_max = new
-        RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
+    low,high = init.RTI_slider.value
     
     dw = init.t_max - init.t_min
     dh = init.h_max - init.h_min
@@ -143,15 +120,6 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
-    
-    #callback for change in coordinates
-    plot_ch0.x_range.on_change('start', x_start)
-    plot_ch0.x_range.on_change('end', x_end)
-    plot_ch0.y_range.on_change('start', y_start)
-    plot_ch0.y_range.on_change('end', y_end)
-    
-    #callback for reset
-    plot_ch0.on_event('reset', reset)
  
     return RTI_plot
 
@@ -181,6 +149,10 @@ def RTI():
     
     init.t_min = t_start
     init.t_max = t_end
+
+    hts = g['hts']
+    init.h_min = min(hts) - .075
+    init.h_max = max(hts) - .3 + .75
 
     print(t_start, t_end)
     RTI_plot = RTI_plotting( snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)

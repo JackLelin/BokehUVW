@@ -19,26 +19,6 @@ def UVW_plotting(U, V, W):
     V_low,V_high = init.V_slider.value
     W_low,W_high = init.W_slider.value
 
-    def reset():
-        init.t_min = 6
-        init.t_max = 20
-        init.h_min = 60 - .15/2
-        init.h_max = 89.7 + .15/2
-        UVW_plot = UVW_plotting(U, V, W)
-        UVW_layout = row([column([UVW_plot,  init.U_slider, init.V_slider, init.W_slider]), column(init.sps), column(init.textboxes)])
-        
-        init.UVW_layout.children[-1:] = [column(init.button_layout, UVW_layout, init.UVW_color_menu)]
-    def x_start(attr, old, new):
-        init.t_min = new
-    def x_end(attr, old, new):
-        init.t_max = new
-    def y_start(attr, old, new):
-        init.h_min = new
-    def y_end(attr, old, new):
-        init.h_max = new
-        init.RTI_layout = column()
-        UVW_plotting(U, V, W)
-    
     dw = init.t_max - init.t_min
     dh = init.h_max - init.h_min
     x_r = Range1d(init.t_min, init.t_max)
@@ -116,13 +96,7 @@ def UVW_plotting(U, V, W):
     r.toolbar.logo = None
     r.toolbar_location = None
 
-    p.on_event('reset', reset)
     UVW_plot = column(p, q, r)
-    
-    p.x_range.on_change('start', x_start)
-    p.x_range.on_change('end', x_end)
-    p.y_range.on_change('start', y_start)
-    p.y_range.on_change('end', y_end)
     
     return UVW_plot
 

@@ -1,30 +1,22 @@
 from bokeh.layouts import column, row
-from bokeh.models import RadioButtonGroup
+from bokeh.models import RadioButtonGroup, Button
 from bokeh.io import curdoc
 
 import init,spc
 from RTI import RTI
 from UVW import UVW
 
-def page2(event):
-    # global sps_ids 
-    # global sptext_ids
-
+def page2():
     init.sps, init.textboxes = spc.spcs('')
-
-    figname = curdoc().get_model_by_id(model_id=event._model_id) #extract user selection
-
-    print(figname.title.text)
-
-    init.date = figname.title.text[5:15]
-    init.yyyy = init.date[0:4]
-    init.mm = init.date[5:7]
-    init.dd = init.date[8:10]
-    
     curdoc().clear()
+
+    # def BackButtonHandler(event):
+    #     page2()
 
     #Add additional buttons here
     Home = init.Home
+    # Back = Button(label='Back', width = 200)
+    # Back.on_click(BackButtonHandler)
     Panels = RadioButtonGroup(labels=["RTI", "UVW"], active=0, width = 400)
 
     button_layout = row(Home, Panels)

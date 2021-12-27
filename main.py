@@ -8,8 +8,6 @@ import init
 from bokeh.events import Tap, MouseEnter, MouseLeave
 from page2 import page2
 
-global doc
-
 def year_select_handler(attr, old, new):
     doc.remove_root(thumbnail_layouts[old])
     doc.add_root(thumbnail_layouts[new])
@@ -35,25 +33,35 @@ def year_images(year): #Generating Function of thumbnails
             tmap.axis.visible= False
             tmap.outline_line_color = None
             tmap.title.text_font_size = '10pt'
-            tmap.on_event(MouseEnter, thumbnail_img_effect1_handler)
-            tmap.on_event(MouseLeave, thumbnail_img_effect2_handler)
-            tmap.on_event(Tap, page2)      
+            tmap.on_event(MouseEnter, thumbnail_effect1_handler)
+            tmap.on_event(MouseLeave, thumbnail_effect2_handler)
+            tmap.on_event(Tap, thumbnail_click_handler)      
             tmaps += [tmap]
         plots.append(row(tmaps))
     
     return column(plots) 
 
-def thumbnail_img_effect1_handler(event): #Function that highlights black around thumbnail when mouse hovers
+def thumbnail_effect1_handler(event): #Function that highlights black around thumbnail when mouse hovers
     fig = curdoc().get_model_by_id(model_id=event._model_id)
     if fig is not None:
         print(event._model_id)
         fig.outline_line_color = 'black'
     
-def thumbnail_img_effect2_handler(event): #Function that takes away that black outline when mouse leaves thumbnail
+def thumbnail_effect2_handler(event): #Function that takes away that black outline when mouse leaves thumbnail
     fig = curdoc().get_model_by_id(model_id=event._model_id)
     if fig is not None:
         fig.outline_line_color = None
 
+def thumbnail_click_handler(event):
+    figname = curdoc().get_model_by_id(model_id=event._model_id) #extract user selection
+    print(figname.title.text)
+
+    init.date = figname.title.text[5:15]
+    init.yyyy = init.date[0:4]
+    init.mm = init.date[5:7]
+    init.dd = init.date[8:10]
+
+    page2()
 
 doc = curdoc()#initializing the document
 
@@ -67,7 +75,7 @@ entry_layout.children += [column(Title_txt, Info_txt)]
 dname = init.dname
 years = sorted(glob1(dname, "*"))
 year_menu = [(year, year) for year in years]
-default_year = '2015'
+default_year = init.yyyy
 
 year_select = Select(title='Select a year:', value=default_year, options=year_menu)
 year_select.on_change('value',year_select_handler)
@@ -76,9 +84,7 @@ entry_layout.children += [year_select]
 doc.add_root(entry_layout)
 doc.add_root(Secondary_txt)
 
-thumbnail_layouts = {}
-for year in years:
-    thumbnail_layouts[year] = year_images(year)
+thumbnail_layouts = {year:year_images(year) for year in years}
 doc.add_root(thumbnail_layouts[default_year])
 
 doc.title = "JRO Valley experiments"
