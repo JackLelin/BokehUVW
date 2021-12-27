@@ -21,7 +21,6 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     dh = init.h_max - init.h_min
     #initialize the parameters for the windmaps
 
-    init.t_max = 20
     x_r = Range1d(init.t_min, init.t_max)
     y_r = Range1d(init.h_min - .075, init.h_max - .075)
     
@@ -81,6 +80,16 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     plot_ch3.toolbar_location = None
     plot_ch3.toolbar.logo = None
     
+    def rangeUpdateHandler(event):
+        init.t_max = plot_ch0.x_range.end
+        init.t_min = plot_ch0.x_range.start
+        init.h_max = plot_ch0.x_range.end
+        init.h_min = plot_ch0.x_range.start
+
+    plot_ch0.on_event('RangesUpdate',rangeUpdateHandler)
+
+    
+
     #load image in for p, q, r, s
     plot_ch0.image(image=[snrdB_map_ch0.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)
     plot_ch0.title.text = "East Beam SNR Map " + str(date)
@@ -120,7 +129,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
- 
+
     return RTI_plot
 
 def RTI():
@@ -156,6 +165,6 @@ def RTI():
 
     print(t_start, t_end)
     RTI_plot = RTI_plotting( snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
-    RTI_layout = row([column([RTI_plot, init.RTI_slider]), column(init.sps), column(init.textboxes)])
+    RTI_layout = row([column(RTI_plot), column(init.sps), column(init.textboxes)])
     
     return RTI_layout
