@@ -1,5 +1,4 @@
-from bokeh.models import  Select,  RangeSlider, CheckboxButtonGroup, CustomJS
-from bokeh.io import curdoc
+from bokeh.models import  Select,  RangeSlider
 import numpy as np
 from spc import spcs
 
@@ -28,26 +27,21 @@ localTime = localTime % (24*3600)
 
 t_min = float(min(localTime)/3600)
 t_max = float(max(localTime)/3600)
-offset = (localTime[1]-localTime[0])/3600 - 0.297
-t_diff = t_max - t_min + offset
+# offset = (localTime[1]-localTime[0])/3600 - 0.297
+# t_diff = t_max - t_min + offset
 
 hts = g['hts']
 h_min = min(hts) - .075
 h_max = max(hts) - .3 + .75
-offset = hts[1] - hts[0] - 0.0002748959
-h_diff = h_max - h_min + offset
+# offset = hts[1] - hts[0] - 0.0002748959
+# h_diff = h_max - h_min + offset
 
 colors = ['RdBu', 'plasma', 'viridis', 'gray', 'jet', 'RdBu_r']
-
-def HomeReset(even):
-    curdoc.remove_root()
-Home = CheckboxButtonGroup(labels=['Home'], active=[], width = 200)
-Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
-Home.on_click(HomeReset)
  
-#Colorbars
-UVW_color_menu = Select(options = colors, value = colors[0], title = 'Color', width = 500)
-RTI_color_menu = Select(options = colors, value = colors[-2], title = 'Color', width = 500)
+#Colorbars value
+UVW_color_menu_value = colors[0]
+RTI_color_menu_value = colors[-2]
+
 
 #slider range endpoints
 rti_low = -18
@@ -59,11 +53,16 @@ v_high = 80
 w_low = -3
 w_high = 3
 
-#sliders
-RTI_slider = RangeSlider(start=rti_low, end=rti_high, value=(rti_low,rti_high), step=.1, title="dB Range", width = 300)
-U_slider = RangeSlider(start=u_low, end=u_high, value=(u_low,u_high), step=.1, title="Eastern Wind Range (m/s)", width = 300)
-V_slider = RangeSlider(start=v_low, end=v_high, value=(v_low,v_high), step=.1, title="Northern Wind Range (m/s)", width = 300)
-W_slider = RangeSlider(start=w_low, end=w_high, value=(w_low,w_high), step=.1, title="Upward Wind Range (m/s)", width = 300)
+#sliders_value
+RTI_slider_value = (rti_low,rti_high)
+U_slider_value = (u_low,u_high)
+V_slider_value = (v_low,v_high)
+W_slider_value = (w_low,w_high)
+
+# RTI_slider = RangeSlider(start=rti_low, end=rti_high, value=(rti_low,rti_high), step=.1, title="dB Range", width = 300)
+# U_slider = RangeSlider(start=u_low, end=u_high, value=(u_low,u_high), step=.1, title="Eastern Wind Range (m/s)", width = 300)
+# V_slider = RangeSlider(start=v_low, end=v_high, value=(v_low,v_high), step=.1, title="Northern Wind Range (m/s)", width = 300)
+# W_slider = RangeSlider(start=w_low, end=w_high, value=(w_low,w_high), step=.1, title="Upward Wind Range (m/s)", width = 300)
 
 
 c = 0

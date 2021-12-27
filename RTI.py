@@ -5,18 +5,17 @@ import matplotlib as mpl
 import matplotlib.cm as cm
 from bokeh.layouts import column, row
 from bokeh.models import  LinearColorMapper, ColorBar, Range1d
+from bokeh.events import Tap
 from bokeh.plotting import figure
-from bokeh.events import  Tap
 
 from spc import windmap_handler
 import init
 #for SNR tab, this returns the 4 beam plots and spcs
 
 def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
-    color = init.RTI_color_menu.value
+    color = init.RTI_color_menu_value
     date = init.date
-    low = init.RTI_slider.value[0]
-    high = init.RTI_slider.value[1]
+    low,high = init.RTI_slider_value
 
     def reset(): #Manual Reset
         init.t_min = 6
@@ -26,7 +25,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
         
         #Regenerate the RTI layout
         RTI_plot = RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
-        RTI_layout = row([column([RTI_plot,  init.RTI_slider]), column(init.sps), column(init.textboxes)])
+        RTI_layout = row([column(RTI_plot), column(init.sps), column(init.textboxes)])
         init.RTI_layout.children[-1:] = [column(init.button_layout, RTI_layout, init.RTI_color_menu)]
     
     #Callbacks for change in coordinate(either when user zooms or pans)
@@ -185,6 +184,6 @@ def RTI():
 
     print(t_start, t_end)
     RTI_plot = RTI_plotting( snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
-    RTI_layout = row([column([RTI_plot, init.RTI_slider]), column(init.sps), column(init.textboxes)])
+    RTI_layout = row([column(RTI_plot), column(init.sps), column(init.textboxes)])
     
     return RTI_layout
