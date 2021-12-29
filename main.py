@@ -15,7 +15,7 @@ def year_select_handler(attr, old, new):
 
 def year_images(year): #Generating Function of thumbnails
     #doc.remove_root(init.inital_maps)
-    imgs = sorted(glob1("/rd0/MST2uvw/static/thumbnail_img/y"+year+"/", '*')) 
+    imgs = sorted(glob1("static/thumbnail_img/y"+year+"/", '*')) 
     """Plot images of the given year"""
     #init.RTI_layout = column()
     plots = []
@@ -27,7 +27,7 @@ def year_images(year): #Generating Function of thumbnails
                           x_range=(0, 350), y_range=(0, 160),
                           active_drag=None,
                           toolbar_location=None)
-            tmap.image_url(url=["MST2uvw/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
+            tmap.image_url(url=["ValleyExp_dev/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
                             w=[350], h=[160])
             tmap.grid.visible= False
             tmap.axis.visible= False

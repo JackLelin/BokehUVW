@@ -1,19 +1,11 @@
-from random import random
 from glob import glob1
 import time
 import numpy as np
-from bokeh.io import show
 from bokeh.layouts import column, row, gridplot, Spacer, widgetbox
 from bokeh.models import Button, ColumnDataSource, Div, CrosshairTool, Range1d, ColumnDataSource, Div
-from bokeh.palettes import RdYlBu3, RdBu
-from bokeh.plotting import figure, Figure, curdoc
-
-#Plotting path - get_year_images shows thumbnail of UVW maps, Then thumbnail_img_handler clears page, loads maps and spcs 
-#thumbnail_img_handler calls create_fig_obj to create UVW plots on new page 
+from bokeh.plotting import figure
 from bokeh.io import curdoc
-from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, Select, Div
-from bokeh.plotting import figure, output_file, show
+
 import init
 
 """Spectral plot model IDs."""

@@ -98,6 +98,15 @@ def UVW_plotting(U, V, W):
 
     UVW_plot = column(p, q, r)
     
+    def UVWSlideUpdateHandler(attr, new, old):
+        pmapper.update(low=init.U_slider.value[0], high=init.U_slider.value[1])
+        qmapper.update(low=init.V_slider.value[0], high=init.V_slider.value[1])
+        rmapper.update(low=init.W_slider.value[0], high=init.W_slider.value[1])
+
+    init.U_slider.on_change('value_throttled', UVWSlideUpdateHandler)
+    init.V_slider.on_change('value_throttled', UVWSlideUpdateHandler)
+    init.W_slider.on_change('value_throttled', UVWSlideUpdateHandler)
+
     return UVW_plot
 
 def UVW():

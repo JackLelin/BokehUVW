@@ -45,7 +45,6 @@ def page2():
         
         #Reload both tabs based on a change in slider or colorbar value
         RTI_layout.children[0] = column(RTI())
-        
         UVW_layout.children[0] = column(UVW())
     
     #Callbacks to changes in color menu or slider
@@ -53,13 +52,6 @@ def page2():
     init.RTI_color_menu.on_change('value', plot_callback)
     init.UVW_color_menu.on_change('value', plot_callback)
     
-    init.RTI_slider.on_change('value_throttled', plot_callback)
-    # init.RTI_slider.on_event('LODEnd', plot_callback)
-    init.RTI_slidersyncable = False
-
-    init.U_slider.on_change('value_throttled', plot_callback)
-    init.V_slider.on_change('value_throttled', plot_callback)
-    init.W_slider.on_change('value_throttled', plot_callback)
     
     Panels.on_change('active', button_cb)
 
