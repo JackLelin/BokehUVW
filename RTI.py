@@ -14,9 +14,12 @@ import init
 
 def RTI_plotting(rti_data):
     
+    #TODO: remove
+    init.acqUTCtime = rti_data['acqUTCtime']
+
     #load the rti
     snrdB_map_i = rti_data['snrdB_map'][:, :, 0:-2]  #[time_idx, ch_idx, height_idx]
-    init.acqUTCtime = rti_data['acqUTCtime']
+    timearray = rti_data['acqUTCtime'][:,0]
 
     hts = rti_data['hts']
     h_low = min(hts) - .075
@@ -47,11 +50,12 @@ def RTI_plotting(rti_data):
     plot_ch2 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     plot_ch3 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     
-    def initializeFigure(figname,title):
+    def RTIFigureConfig(figname, title):
         figname.border_fill_color = 'white'
         figname.background_fill_color = 'white'
         figname.outline_line_color = None
         figname.grid.grid_line_color = None
+        figname.toolbar.logo = None
         figname.add_layout(color_bar, 'right')
         figname.title.text = title + init.yyyy + '.' + init.mm + '.' + init.dd
         figname.title.align = "center"
@@ -60,20 +64,18 @@ def RTI_plotting(rti_data):
         figname.yaxis.axis_label_text_font_style = "normal"
         figname.yaxis.axis_label = "Range (km)"
         figname.on_event(Tap, windmap_handler)
-    #q plot
-    initializeFigure(plot_ch0,"East Beam SNR Map ")
-    initializeFigure(plot_ch1,"West Beam SNR Map ")
-    initializeFigure(plot_ch2,"South Beam SNR Map ")
-    initializeFigure(plot_ch3,"Vertical Beam SNR Map ")
+
+    #config every plot
+    RTIFigureConfig(plot_ch0,"East Beam SNR Map ")
+    RTIFigureConfig(plot_ch1,"West Beam SNR Map ")
+    RTIFigureConfig(plot_ch2,"South Beam SNR Map ")
+    RTIFigureConfig(plot_ch3,"Vertical Beam SNR Map ")
 
     #disable toolbar for q, r, s
-    plot_ch0.toolbar.logo = None
-    plot_ch1.toolbar.logo = None
     plot_ch1.toolbar_location = None
-    plot_ch2.toolbar.logo = None
     plot_ch2.toolbar_location = None
     plot_ch3.toolbar_location = None
-    plot_ch3.toolbar.logo = None
+
     
     def rangeUpdateHandler(event):
         init.t_max = plot_ch0.x_range.end
@@ -88,7 +90,6 @@ def RTI_plotting(rti_data):
 
     init.RTI_slider.on_change('value', RTISlideUpdateHandler)
 
-    timearray = rti_data['acqUTCtime'][:,0]
     timeinterval = timearray[1:] - timearray[:-1]
     #larger than usual timeinterval indicates the start gap
     #numpy.nonzero() gives the index of the start of gap
