@@ -7,7 +7,11 @@ from spc import spcs
 
 print('init.py was run by bokeh ***********************')
 dname = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min"
-date = "2017.04.20" 
+rti_gg_dir = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz"
+wind_dir = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/windmap2_{}.{}.{}.npz"
+
+acqUTCtime = None
+
 yyyy = "2017"
 mm = "04"
 dd = "20"

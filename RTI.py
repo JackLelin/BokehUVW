@@ -12,13 +12,20 @@ from spc import windmap_handler
 import init
 #for SNR tab, this returns the 4 beam plots and spcs
 
-def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
-    color = init.RTI_color_menu.value
-    date = init.date
-    low,high = init.RTI_slider.value
+def RTI_plotting(rti_data):
     
-    dw = init.t_max - init.t_min
-    dh = init.h_max - init.h_min
+    #load the rti
+    snrdB_map_i = rti_data['snrdB_map'][:, :, 0:-2]  #[time_idx, ch_idx, height_idx]
+    init.acqUTCtime = rti_data['acqUTCtime']
+
+    hts = rti_data['hts']
+    h_low = min(hts) - .075
+    h_high = max(hts) - .3 + .75
+   
+
+    color = init.RTI_color_menu.value
+    snr_low,snr_high = init.RTI_slider.value
+    
     #initialize the parameters for the windmaps
 
     x_r = Range1d(init.t_min, init.t_max)
@@ -29,7 +36,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     colormap.set_bad('darkgrey')
     RdBu_r_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]  
     # plot_ch0, plot_ch1, plot_ch2, plot_ch3 use the same colorbar
-    c_mapper = LinearColorMapper(palette=RdBu_r_palette, low=low, high=high)
+    c_mapper = LinearColorMapper(palette=RdBu_r_palette, low=snr_low, high=snr_high)
     color_bar = ColorBar(color_mapper=c_mapper, height=110, width=25, location=(0, 0), title = 'dB')
 
     #plot_ch0, plot_ch1, plot_ch2, plot_ch3 are the plots for the 4 RTI windmaps
@@ -46,7 +53,7 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
         figname.outline_line_color = None
         figname.grid.grid_line_color = None
         figname.add_layout(color_bar, 'right')
-        figname.title.text = title + str(date)
+        figname.title.text = title + init.yyyy + '.' + init.mm + '.' + init.dd
         figname.title.align = "center"
         figname.xaxis.axis_label_text_font_style = "normal"
         figname.xaxis.axis_label = "Local Time (hour)"
@@ -81,54 +88,44 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
 
     init.RTI_slider.on_change('value', RTISlideUpdateHandler)
 
-    # def plotImageWithGaps(figure):
-
-    #load image in for p, q, r, s
-    plot_ch0.image(image=[snrdB_map_ch0.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)    
-    plot_ch1.image(image=[snrdB_map_ch1.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)  
-    plot_ch2.image(image=[snrdB_map_ch2.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)  
-    plot_ch3.image(image=[snrdB_map_ch3.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)
-
+    timearray = rti_data['acqUTCtime'][:,0]
+    timeinterval = timearray[1:] - timearray[:-1]
+    #larger than usual timeinterval indicates the start gap
+    #numpy.nonzero() gives the index of the start of gap
+    gap_index = ((timeinterval / np.median(timeinterval))>1.1).nonzero()[0] # numpy.nonzero() returns a tuple
+    #plus 1 gives the index of the start of each acq session
+    acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start and end
     
+    #load image in for p, q, r, s
+    for (idx,idx_next) in zip(acq_start_index[:-1],acq_start_index[1:]):
+        if idx_next == idx+1: continue
+        time_start = time.gmtime(timearray[idx])
+        t_start = (time_start.tm_hour*3600 + time_start.tm_min *60 + time_start.tm_sec )/3600 - 5
+        #idx_next is the index of next acq session, so idx_next-1 gives the end of last acq session
+        time_end = time.gmtime(timearray[idx_next-1]) 
+        t_end = (time_end.tm_hour*3600 + time_end.tm_min *60 + time_end.tm_sec )/3600 - 5
+        t_end = t_end + 24 if t_end<t_start else t_end
+        dw = t_end-t_start
+        dh = h_high-h_low
+
+        print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
+
+        for (i,plot) in zip(range(4),[plot_ch0,plot_ch1,plot_ch2,plot_ch3]):
+            plot.image(image=[snrdB_map_i[idx:idx_next-1,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
+
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
 
     return RTI_plot
 
 def RTI():
-    dname = init.dname
-    year = init.yyyy
-    date = init.date
+
     #load RTI datafile
-    dpath_snr = dname + "/" + year + "/Maps/fitmap_" + date + ".npz"  
+    rti_file = init.rti_gg_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
+    print("RTI path: " + rti_file)
+    with np.load(rti_file) as g:
+        RTI_plot = RTI_plotting(g)   
 
-    g = np.load(dpath_snr)
-    print("RTI path: " + dpath_snr)
-    
-    #load the windmaps
-    snrdB_map = g['snrdB_map']
-    snrdB_map_ch0 = snrdB_map[:, 0, 0:-2] #all but the last 2 entries b/c UVW is 199 entries
-    snrdB_map_ch1 = snrdB_map[:, 1, 0:-2]
-    snrdB_map_ch2 = snrdB_map[:, 2, 0:-2]
-    snrdB_map_ch3 = snrdB_map[:, 3, 0:-2]
-    acqUTCtime = g['acqUTCtime']
-    init.acqUTCtime = acqUTCtime
-    t_min = time.gmtime(int(acqUTCtime[0]))
-    t_start = (t_min.tm_hour*3600 + t_min.tm_min *60 + t_min.tm_sec )/3600 - 5
-    t_max = time.gmtime(int(acqUTCtime[-1]))
-    t_end = (t_max.tm_hour*3600 + t_max.tm_min *60 + t_max.tm_sec )/3600 - 5
-    if (t_end < t_start):
-        t_end = t_end + 24
-    
-    init.t_min = t_start
-    init.t_max = t_end
-
-    hts = g['hts']
-    init.h_min = min(hts) - .075
-    init.h_max = max(hts) - .3 + .75
-
-    print(t_start, t_end)
-    RTI_plot = RTI_plotting( snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3)
     RTI_layout = row([column([RTI_plot, init.RTI_slider]), column(init.sps), column(init.textboxes)])
     
     return RTI_layout

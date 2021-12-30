@@ -56,10 +56,10 @@ def thumbnail_click_handler(event):
     figname = curdoc().get_model_by_id(model_id=event._model_id) #extract user selection
     print(figname.title.text)
 
-    init.date = figname.title.text[5:15]
-    init.yyyy = init.date[0:4]
-    init.mm = init.date[5:7]
-    init.dd = init.date[8:10]
+    date = figname.title.text[5:15]
+    init.yyyy = date[0:4]
+    init.mm = date[5:7]
+    init.dd = date[8:10]
 
     page2()
 

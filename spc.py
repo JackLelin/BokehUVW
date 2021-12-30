@@ -12,6 +12,7 @@ import init
 sps_ids = [None, None, None, None]
 """Spectral description model IDs."""
 sptext_ids = [None, None, None, None]
+
 def spcs(fname):
     channel = ['0', '1', '2', '3']
     sps = []
@@ -20,6 +21,8 @@ def spcs(fname):
                     title='Ch {}'.format(channel[ch]),
                     toolbar_location='left', tools='box_zoom, pan, wheel_zoom, reset')
         source = ColumnDataSource(data=dict(x=list(np.linspace(-12, 12, 64)), y=64*[0]))
+        # line 1 and line 3 are the gg fitting
+        # line 2 and line 4 are the dot and line of the data
         sp.line(x='x', y='y', source=source, color='blue', name='line', alpha = .5 ,line_width = 5)
         sp.circle(x='x', y='y2', source=source, color='green', name='line2')
         sp.line(x='x', y='y3', source=source, color='red', name='line3', alpha = .5, line_width = 5)
@@ -66,7 +69,7 @@ def windmap_handler(event):
     """Retrieve spc data"""
                       
     spcpath = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/".format(init.yyyy, init.yyyy, init.mm, init.dd)
-    path = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz".format(init.yyyy, init.yyyy, init.mm, init.dd)
+    path    = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz".format(init.yyyy, init.yyyy, init.mm, init.dd)
     fnames = sorted(glob1(spcpath,'{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
     #gnames = sorted(glob1(path,'fit_{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
     fms = [int(fname[11:13])*3600e3+int(fname[14:16])*60e3+int(fname[17:19])*1e3 for fname in fnames]
@@ -89,8 +92,8 @@ def windmap_handler(event):
     time1 = 3600 * hour + 60 * minute + sec
     time1 = np.floor(time1 / 60.48)
     t = int(time1) + 1
-    f = np.load(spcfile)
-    g = np.load(path) 
+    f = np.load(spcfile) 
+    g = np.load(path) # g is fitsfile which is same as rti file
     print("spcfile: " + spcfile)
     print("fitsfile: " + path)
     lst = g.files
@@ -101,7 +104,7 @@ def windmap_handler(event):
     #noise1=f['noise'] #from fit file
     N = g['N_map']
 
-    hts = f['hts']
+    hts = f['hts']     # seems useless
     vel_arr = f['vel_arr']
     hts = g['hts']
     lsq1 = g['lsq1_map']
@@ -165,7 +168,8 @@ def windmap_handler(event):
             fit2[ch, :] = fit2[ch, :] + a2[ch] * np.exp(inner) 
 
     """Update spectral figure models."""
-    
+    # line 1 and line 3 are the gg fitting
+    # line 2 and line 4 are the dot and line of the data
     for ch in range(4):
         spcfig = curdoc().get_model_by_id(model_id=sps_ids[ch])
         """Clear plot beforehand."""

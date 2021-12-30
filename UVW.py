@@ -13,7 +13,9 @@ import init
 #for SNR tab, this returns the 4 beam plots and spcs
 
 def UVW_plotting(U, V, W):
-    date = init.date
+
+    date = init.yyyy + '.' + init.mm + '.' + init.dd
+    
     color = init.UVW_color_menu.value
     U_low,U_high = init.U_slider.value
     V_low,V_high = init.V_slider.value
@@ -59,7 +61,7 @@ def UVW_plotting(U, V, W):
     rcolor_bar = ColorBar(color_mapper=rmapper, location=(0, 0), title = 'm/s')
     
     p.image(image=[U.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=pmapper)
-    p.title.text = "Eastward Wind Map " + str(date)
+    p.title.text = "Eastward Wind Map " + date
     p.title.align = "center"
     p.xaxis.axis_label_text_font_style = "normal"
     p.xaxis.axis_label = "Local Time (hour)"
@@ -70,7 +72,7 @@ def UVW_plotting(U, V, W):
     
 
     q.image(image=[V.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=qmapper)
-    q.title.text = "Northward Wind Map " + str(date)
+    q.title.text = "Northward Wind Map " + date
     q.title.align = "center"
     q.xaxis.axis_label_text_font_style = "normal"
     q.xaxis.axis_label = "Local Time (hour)"
@@ -81,7 +83,7 @@ def UVW_plotting(U, V, W):
 
 
     r.image(image=[W.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=rmapper)
-    r.title.text = "Upward Wind Map " + str(date)
+    r.title.text = "Upward Wind Map " + date
     r.title.align = "center"
     r.xaxis.axis_label_text_font_style = "normal"
     r.xaxis.axis_label = "Local Time (hour)"
@@ -114,28 +116,26 @@ def UVW_plotting(U, V, W):
     return UVW_plot
 
 def UVW():
-    dname = init.dname
-    year = init.yyyy
-    date = init.date
+    mappath = init.wind_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
+
     #load data
-    mappath = dname + "/" + year + "/Maps/" + "windmap2_" + date + ".npz" 
     f = np.load(mappath)
     print("UVW path: " + mappath)
     #load maps
     U = f['U']
     V = f['V'] 
     W = f['W']
-    acqUTCtime = f['acqUTCtime']
-    t_min = time.gmtime(int(acqUTCtime[0]))
-    t_start = (t_min.tm_hour*3600 + t_min.tm_min *60 + t_min.tm_sec )/3600 - 5
-    t_max = time.gmtime(int(acqUTCtime[-1]))
-    t_end = (t_max.tm_hour*3600 + t_max.tm_min *60 + t_max.tm_sec )/3600 - 5
-    if (t_end < t_start):
-        t_end = t_end + 24
+    # acqUTCtime = f['acqUTCtime']
+    # t_min = time.gmtime(int(acqUTCtime[0]))
+    # t_start = (t_min.tm_hour*3600 + t_min.tm_min *60 + t_min.tm_sec )/3600 - 5
+    # t_max = time.gmtime(int(acqUTCtime[-1]))
+    # t_end = (t_max.tm_hour*3600 + t_max.tm_min *60 + t_max.tm_sec )/3600 - 5
+    # if (t_end < t_start):
+    #     t_end = t_end + 24
     
-    init.t_min = t_start
-    init.t_max = t_end
-    print(t_start, t_end)
+    # init.t_min = t_start
+    # init.t_max = t_end
+    # print(t_start, t_end)
     #call the plotting function and return the layout with everything on 
     UVW_plot = UVW_plotting(U, V, W)
     UVW_layout = row([column([UVW_plot,init.U_slider, init.V_slider, init.W_slider]), column(init.sps), column(init.textboxes)])
