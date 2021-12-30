@@ -28,9 +28,9 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
     RdBu_r_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]  
-    #make colorbar for p
+    # plot_ch0, plot_ch1, plot_ch2, plot_ch3 use the same colorbar
     c_mapper = LinearColorMapper(palette=RdBu_r_palette, low=low, high=high)
-    color_bar = ColorBar(color_mapper=c_mapper, location=(0, 0), title = 'dB')
+    color_bar = ColorBar(color_mapper=c_mapper, height=110, width=25, location=(0, 0), title = 'dB')
 
     #plot_ch0, plot_ch1, plot_ch2, plot_ch3 are the plots for the 4 RTI windmaps
     #disable the logo, make default tool as box zoom,
@@ -79,9 +79,9 @@ def RTI_plotting(snrdB_map_ch0, snrdB_map_ch1, snrdB_map_ch2, snrdB_map_ch3):
     def RTISlideUpdateHandler(attr, new, old):
         c_mapper.update(low=init.RTI_slider.value[0], high=init.RTI_slider.value[1])
 
-    init.RTI_slider.on_change('value_throttled', RTISlideUpdateHandler)
+    init.RTI_slider.on_change('value', RTISlideUpdateHandler)
 
-    # def plotSegments():
+    # def plotImageWithGaps(figure):
 
     #load image in for p, q, r, s
     plot_ch0.image(image=[snrdB_map_ch0.T], x=init.t_min, y=init.h_min, dw=dw, dh=dh, color_mapper=c_mapper)    
@@ -101,6 +101,7 @@ def RTI():
     date = init.date
     #load RTI datafile
     dpath_snr = dname + "/" + year + "/Maps/fitmap_" + date + ".npz"  
+
     g = np.load(dpath_snr)
     print("RTI path: " + dpath_snr)
     
