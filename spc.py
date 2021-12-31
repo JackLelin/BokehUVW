@@ -1,10 +1,7 @@
-from glob import glob1
-import calendar, time
+import time
 import numpy as np
 from bokeh.models import  ColumnDataSource, Div
 from bokeh.plotting import figure
-
-import init
 
 def spctraConfig():
     # This function initialize four Figures and fout textboxes 
@@ -46,22 +43,12 @@ def spctraConfig():
     return sps, textboxes
 
 
-def windmap_handler(event):
-    # Obtain the height and time of the click location 
-    cursortime = event.x*3600   #time in sec
-    cursorheight = event.y      #height in km
-    print('cursortime:',cursortime, 'cursorheight: ', cursorheight )
-
-    """Retrieve spc data"""
-    # Find all spectra file in the corresponding day
-    spcpath = init.specs_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
-    specsnames = sorted(glob1(spcpath,'{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
+def showFittingSpectra(carrier, cursortime, cursorheight):
     
-    # We can obtain the time of spectra from the file name
-    specs_time = np.array([int(fname[11:13])*3600+int(fname[14:16])*60+int(fname[17:19]) for fname in specsnames])
+    """Retrieve spc data"""
     # Picking the correct file by time
-    specsname = specsnames[np.argmin(np.abs( specs_time - cursortime ))]
-    specfile = spcpath + specsname
+    specsname = carrier.specsnames[np.argmin(np.abs( carrier.specs_time - cursortime ))]
+    specfile = carrier.spcpath + specsname
     print('specfile:', specfile)
 
     # Loading the spectrogram data
@@ -75,24 +62,18 @@ def windmap_handler(event):
         spec = specdata['spc'][:,:,spec_h_idx] if specdata['spc'].shape[1] == 64 else specdata['spc'][:,spec_h_idx,:]
     
     """Retrieve gg_fit parameters"""
-    fit_gg_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
-
     # All gg_fit parameters are stored as map for a given day in one file
-    with np.load(fit_gg_file) as fitggdata:
-        gg_hts = fitggdata['hts']
-        gg_h_idx = np.argmin(np.abs(gg_hts - cursorheight))
+    gg_hts = carrier.rti_gg_hts
+    gg_h_idx = np.argmin(np.abs(gg_hts - cursorheight))
 
-        # convert the UTC time to hours from 00:00 of the local time
-        gg_LC_sec = fitggdata['acqUTCtime'].flatten() - 5*3600 - calendar.timegm((int(init.yyyy), int(init.mm), int(init.dd), 0, 0, 0))
-        # print('gg_LC_sec', gg_LC_sec[0], 'cursortime', cursortime)
-        gg_t_idx = np.argmin(np.abs(gg_LC_sec - cursortime))
-        print('gg_fit_time', time.gmtime(fitggdata['acqUTCtime'].flatten()[gg_t_idx]))
+    gg_t_idx = np.argmin(np.abs(carrier.gg_LT_sec - cursortime))
+    print('gg_fit_time', time.gmtime(carrier.rti_gg_timearray[gg_t_idx]))
 
-        # Using the t_idx and h_idx we obtain least_square_1 and least_square_2
-        gg_lsq1 = fitggdata['lsq1_map'][gg_t_idx, :, gg_h_idx, :]
-        gg_lsq2 = fitggdata['lsq2_map'][gg_t_idx, :, gg_h_idx, :]
+    # Using the t_idx and h_idx we obtain least_square_1 and least_square_2 and noise
+    gg_lsq1 = carrier.gg_lsq1[gg_t_idx, :, gg_h_idx, :]
+    gg_lsq2 = carrier.gg_lsq2[gg_t_idx, :, gg_h_idx, :]
 
-        gg_noise = fitggdata['N_map'][gg_t_idx, :, gg_h_idx]
+    gg_noise = carrier.gg_noise[gg_t_idx, :, gg_h_idx]
 
     print('Noise:', gg_noise)
     v1 = np.zeros(4)
@@ -141,7 +122,7 @@ def windmap_handler(event):
     # line 1 and line 3 are the gg fitting
     # line 2 and line 4 are the dot and line of the data
     for ch in range(4):
-        spcfig = init.spectra[ch]
+        spcfig = carrier.spectra[ch]
         
         line = spcfig.select(name='line')  
         line.data_source.data['x'] = list(spec_vel_array)
@@ -165,9 +146,9 @@ def windmap_handler(event):
         
     """Update spectral texts """
     for ch in range(4):
-        spec = init.spectra[ch]
+        spec = carrier.spectra[ch]
         spec.title.text = 'Ch{0}, {1}:{2}:{3} LT, {4:.2f} km'.format(ch,specsname[11:13],specsname[14:16],specsname[17:19],gg_hts[gg_h_idx] )
-        sptext = init.textboxes[ch]
+        sptext = carrier.textboxes[ch]
         sptext.text = "V1 = {:.2f} m/s <br> S1 = {:.2f} <br> A1 = {:.2f} m/s <br> p1 = {:.2f} <br> V2 = {:.2f} m/s <br> S2 = {:.2f} <br> A2 = {:.2f} m/s <br> p2 = {:.2f} <br> N = {:.2f}".format(
            v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch], np.nan if np.isnan(gg_noise[ch]) else 1) # gg_noise[ch] is not used, the plot is essentially SNR so noise level is always 1
     

@@ -3,39 +3,35 @@ import copy
 import numpy as np
 import matplotlib as mpl
 import matplotlib.cm as cm
-from bokeh.layouts import column, row
-from bokeh.models import LinearColorMapper, ColorBar, Range1d
+from bokeh.layouts import column
+from bokeh.models import LinearColorMapper, ColorBar
 from bokeh.plotting import figure
 from bokeh.events import Tap
-from bokeh.layouts import column
-from spc import windmap_handler
-import init
+
+from spc import showFittingSpectra
+
 #for SNR tab, this returns the 4 beam plots and spcs
 
-def UVW_plotting(uvw_data):
+def UVW_plotting(carrier):
     # load UVW
-    U = uvw_data['U']
-    V = uvw_data['V'] 
-    W = uvw_data['W']
+    U = carrier.U
+    V = carrier.V
+    W = carrier.W
 
-    timearray = uvw_data['acqUTCtime'].flatten()
+    timearray = carrier.uvw_timearray
+    hts = carrier.uvw_hts
 
-    hts = uvw_data['hts']
-    h_low = min(hts) - .075
-    h_high = max(hts) - .3 + .75
-
-
-    date = init.yyyy + '.' + init.mm + '.' + init.dd
+    date = carrier.yyyy + '.' + carrier.mm + '.' + carrier.dd
 
     #reading the user selected slider value and color
-    color = init.UVW_color_menu.value
-    U_low,U_high = init.U_slider.value
-    V_low,V_high = init.V_slider.value
-    W_low,W_high = init.W_slider.value
+    color = carrier.UVW_color_menu.value
+    U_low,U_high = carrier.U_slider.value
+    V_low,V_high = carrier.V_slider.value
+    W_low,W_high = carrier.W_slider.value
 
     #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
-    x_r = init.x_r
-    y_r = init.y_r
+    x_r = carrier.x_r
+    y_r = carrier.y_r
     
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
@@ -53,6 +49,13 @@ def UVW_plotting(uvw_data):
 
     w_mapper = LinearColorMapper(palette=RdBu_r_palette, low=W_low, high=W_high)
     w_color_bar = ColorBar(color_mapper=w_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
+
+    def windmap_handler(event):
+        # Obtain the height and time of the click location 
+        cursortime = event.x*3600   #time in sec
+        cursorheight = event.y      #height in km
+        print('cursortime:',cursortime, 'cursorheight: ', cursorheight )
+        showFittingSpectra(carrier, cursortime,cursorheight)
 
     def UVWFigureConfig(figname, title, c_bar):
         figname.border_fill_color = 'white'
@@ -104,6 +107,8 @@ def UVW_plotting(uvw_data):
         #t_end the the time of last the acq, we need to add the length of one acq to get the length of acq session
         dw = t_end - t_start + np.median(timeinterval)/3600 
 
+        h_low = min(hts) 
+        h_high = max(hts)
         dh = h_high-h_low
         # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
 
@@ -116,27 +121,17 @@ def UVW_plotting(uvw_data):
     #Defining the handler for updating the UVW sliders
     #Each slider corresponds to one colormapper
     def USlideUpdateHandler(attr, new, old):
-        u_mapper.update(low=init.U_slider.value[0], high=init.U_slider.value[1])
+        u_mapper.update(low=carrier.U_slider.value[0], high=carrier.U_slider.value[1])
     
     def VSlideUpdateHandler(attr, new, old):
-        v_mapper.update(low=init.V_slider.value[0], high=init.V_slider.value[1])
+        v_mapper.update(low=carrier.V_slider.value[0], high=carrier.V_slider.value[1])
     
     def WSlideUpdateHandler(attr, new, old):
-        w_mapper.update(low=init.W_slider.value[0], high=init.W_slider.value[1])
+        w_mapper.update(low=carrier.W_slider.value[0], high=carrier.W_slider.value[1])
 
-    init.U_slider.on_change('value', USlideUpdateHandler)
-    init.V_slider.on_change('value', VSlideUpdateHandler)
-    init.W_slider.on_change('value', WSlideUpdateHandler)
+    carrier.U_slider.on_change('value', USlideUpdateHandler)
+    carrier.V_slider.on_change('value', VSlideUpdateHandler)
+    carrier.W_slider.on_change('value', WSlideUpdateHandler)
 
-    return UVW_plot
+    return column([UVW_plot, carrier.U_slider, carrier.V_slider, carrier.W_slider])
 
-def UVW():
-    mappath = init.wind_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
-    print("UVW path: " + mappath)
-
-    #load data
-    with np.load(mappath) as f:
-        UVW_plot = UVW_plotting(f)
-
-    UVW_layout = column([UVW_plot, init.U_slider, init.V_slider, init.W_slider])
-    return UVW_layout

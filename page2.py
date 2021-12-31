@@ -1,45 +1,32 @@
 from bokeh.layouts import column, row
-from bokeh.models import RadioButtonGroup, Range1d
-from bokeh.io import curdoc
+from bokeh.models import RadioButtonGroup
 
 import init, spc
-from RTI import RTI
-from UVW import UVW
+from RTI import RTI_plotting
+from UVW import UVW_plotting
 
-def page2():
-    init.spectra, init.textboxes = spc.spctraConfig()
+def Page2(carrier):
 
-    # Clear the doc, removing all global objects from the doc
-    curdoc().clear()
-
-    #Add additional buttons here
-    Home = init.Home
-
+    # Initialize the buttons
     Panels = RadioButtonGroup(labels=["RTI", "UVW"], active=0, width = 400)
+    Button_layout = row(carrier.Home, Panels)
+    
+    # The carrier loads all data
+    carrier.loadData()
+    carrier.spectra, carrier.textboxes = spc.spctraConfig()
 
-    # initializing the x_range, y_range
-    # Using the same Range1D objects for all plots is crucial to sync display area of all plots  
-    init.x_r = Range1d(init.t_min, init.t_max)
-    init.y_r = Range1d(init.h_min, init.h_max)
-
-    Button_layout = row(Home, Panels)
-       
     #RTI Layout
-    RTI_plot = RTI()
-    RTI_layout = column([RTI_plot, init.RTI_color_menu])
+    RTI_plot = RTI_plotting(carrier)
+    RTI_layout = column([RTI_plot, carrier.RTI_color_menu])
     
     #UVW Layout
-    UVW_plot = UVW()
-    UVW_layout = column([UVW_plot, init.UVW_color_menu])
+    UVW_plot = UVW_plotting(carrier)
+    UVW_layout = column([UVW_plot, carrier.UVW_color_menu])
         
     # Spectra_layout = column([row([init.spectra[i], init.textboxes[i]]) for i in range(4)])
-    Spectra_layout = row(column(init.spectra),column(init.textboxes))
+    Spectra_layout = row(column(carrier.spectra),column(carrier.textboxes))
     Plotting_layout = row([RTI_layout, Spectra_layout])
-
-    page2_doc = curdoc()
-    page2_doc.add_root(Button_layout)
-    page2_doc.add_root(Plotting_layout)
-    
+   
     def button_cb(attr, new, old):
         # Clear current document and add page2 w/RTI Tab
         if(Panels.active == 1): #This if block loads UVW layout and removes RTI
@@ -50,18 +37,19 @@ def page2():
     
     def plot_callback(attr, new, old):
         #Reload both tabs based on a change in colorbar value
-        RTI_layout.children[0] = RTI()
-        UVW_layout.children[0] = UVW()
+        RTI_layout.children[0] = RTI_plotting(carrier)
+        UVW_layout.children[0] = UVW_plotting(carrier)
     
     #Callbacks to changes in color menu or slider
-    init.RTI_color_menu.on_change('value', plot_callback)
-    init.UVW_color_menu.on_change('value', plot_callback)
+    carrier.RTI_color_menu.on_change('value', plot_callback)
+    carrier.UVW_color_menu.on_change('value', plot_callback)
     
     Panels.on_change('active', button_cb)
 
+    return column([Button_layout, Plotting_layout]) 
         
 """
-+---------------------------------------------------------Doc root---------------------------------------------------------------------+
++----------------------------------------------------page2-----column()----------------------------------------------------------------+
 |                                                                                                                                      |
 |     +------------------------------------------------Button_layout----row()----------------------------------------------------+     |
 |     |      |*******HOME*******|        |*****RTI*****|*****UVW*****|                                                           |     |

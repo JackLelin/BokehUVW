@@ -8,26 +8,21 @@ from bokeh.models import  LinearColorMapper, ColorBar
 from bokeh.plotting import figure
 from bokeh.events import  Tap
 
-from spc import windmap_handler
-import init
+from spc import showFittingSpectra
 #for SNR tab, this returns the 4 beam plots and spcs
 
-def RTI_plotting(rti_data):
+def RTI_plotting(carrier):
     
     #load the rti
-    snrdB_map_i = rti_data['snrdB_map'][:, :, 0:-2]  #[time_idx, ch_idx, height_idx]
-    timearray = rti_data['acqUTCtime'].flatten()
-
-    hts = rti_data['hts']
-    h_low = min(hts) - .075
-    h_high = max(hts) - .3 + .75
-    
+    hts = carrier.rti_gg_hts
+    timearray = carrier.rti_gg_timearray
+   
     #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
-    x_r = init.x_r
-    y_r = init.y_r
+    x_r = carrier.x_r
+    y_r = carrier.y_r
     
-    color = init.RTI_color_menu.value
-    snr_low,snr_high = init.RTI_slider.value
+    color = carrier.RTI_color_menu.value
+    snr_low,snr_high = carrier.RTI_slider.value
       
     #make default colorbar 
     colormap = copy.copy(cm.get_cmap(color))
@@ -45,6 +40,13 @@ def RTI_plotting(rti_data):
     plot_ch2 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     plot_ch3 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     
+    def RTI_map_handler(event):
+        # Obtain the height and time of the click location 
+        cursortime = event.x*3600   #time in sec
+        cursorheight = event.y      #height in km
+        print('cursortime:',cursortime, 'cursorheight: ', cursorheight )
+        showFittingSpectra(carrier, cursortime, cursorheight)
+
     # defining function to initialize and config every plot
     def RTIFigureConfig(figname, title):
         figname.border_fill_color = 'white'
@@ -53,13 +55,13 @@ def RTI_plotting(rti_data):
         figname.grid.grid_line_color = None
         figname.toolbar.logo = None
         figname.add_layout(color_bar, 'right')
-        figname.title.text = title + init.yyyy + '.' + init.mm + '.' + init.dd
+        figname.title.text = title + carrier.yyyy + '.' + carrier.mm + '.' + carrier.dd
         figname.title.align = "center"
         figname.xaxis.axis_label_text_font_style = "normal"
         figname.xaxis.axis_label = "Local Time (hour)"
         figname.yaxis.axis_label_text_font_style = "normal"
         figname.yaxis.axis_label = "Range (km)"
-        figname.on_event(Tap, windmap_handler)
+        figname.on_event(Tap, RTI_map_handler)
 
     #config every plot
     RTIFigureConfig(plot_ch0,"East Beam SNR Map ")
@@ -73,9 +75,9 @@ def RTI_plotting(rti_data):
     plot_ch3.toolbar_location = None
         
     def RTISlideUpdateHandler(attr, new, old):
-        c_mapper.update(low=init.RTI_slider.value[0], high=init.RTI_slider.value[1])
+        c_mapper.update(low=carrier.RTI_slider.value[0], high=carrier.RTI_slider.value[1])
 
-    init.RTI_slider.on_change('value', RTISlideUpdateHandler)
+    carrier.RTI_slider.on_change('value', RTISlideUpdateHandler)
 
     timeinterval = timearray[1:] - timearray[:-1]
     #larger than usual timeinterval indicates the start gap
@@ -99,26 +101,17 @@ def RTI_plotting(rti_data):
         #t_end the the time of last the acq, we need to add the length of one acq to get the length of acq session
         dw = t_end-t_start + np.median(timeinterval)/3600 
 
+        h_low = min(hts)
+        h_high = max(hts)
         dh = h_high-h_low
         # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
         
         #load image in for ch0, ch1, ch2, ch3
         for (i,plot) in zip(range(4),[plot_ch0,plot_ch1,plot_ch2,plot_ch3]):
-            plot.image(image=[snrdB_map_i[idx:idx_next,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
+            plot.image(image=[carrier.snrdB_map_i[idx:idx_next,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
 
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
 
-    return RTI_plot
+    return column([RTI_plot, carrier.RTI_slider])
 
-def RTI():
-
-    #load RTI datafile
-    rti_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
-    print("RTI path: " + rti_file)
-    with np.load(rti_file) as g:
-        RTI_plot = RTI_plotting(g)   
-
-    RTI_layout = column([RTI_plot, init.RTI_slider])
-    
-    return RTI_layout
