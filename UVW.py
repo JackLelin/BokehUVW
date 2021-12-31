@@ -46,13 +46,13 @@ def UVW_plotting(uvw_data):
     # changing the colormapper will change both the 'color' of the plot and the colorbar
 
     u_mapper = LinearColorMapper(palette=RdBu_r_palette, low=U_low, high=U_high)
-    u_color_bar = ColorBar(color_mapper=u_mapper, location=(0, 0), title = 'm/s')
+    u_color_bar = ColorBar(color_mapper=u_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
     v_mapper = LinearColorMapper(palette=RdBu_r_palette, low=V_low, high=V_high)
-    v_color_bar = ColorBar(color_mapper=v_mapper, location=(0, 0), title = 'm/s')
+    v_color_bar = ColorBar(color_mapper=v_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
     w_mapper = LinearColorMapper(palette=RdBu_r_palette, low=W_low, high=W_high)
-    w_color_bar = ColorBar(color_mapper=w_mapper, location=(0, 0), title = 'm/s')
+    w_color_bar = ColorBar(color_mapper=w_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
     def UVWFigureConfig(figname, title, c_bar):
         figname.border_fill_color = 'white'
