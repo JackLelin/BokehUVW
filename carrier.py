@@ -19,7 +19,7 @@ class infoCarrier(object):
         self.spectra, self.textboxes = spctraConfig()
 
         self.thumbnail_layouts = None
-        
+
         # The x-range and y-range Range1D object for RTI plot and UVW plot. The ranges are initialized in page2.py
         # This way, the displayed range of RTI plot and UVW plot are tethered, zooming/dragging action will be synced between all plots
         # Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
@@ -35,8 +35,6 @@ class infoCarrier(object):
 
         self.Home = Button(label='Home', width = 200, button_type="success")
         self.Home.on_click(HomeReset)
-        # self.Home.js_on_click(CustomJS(args=dict(urls=[init.url]),code="""window.open(urls, "_self");"""))
-
  
         #Colorbars
         self.UVW_color_menu = Select(options = init.colors, value = init.colors[0], title = 'Color', width = 500)
