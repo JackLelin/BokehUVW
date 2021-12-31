@@ -14,9 +14,6 @@ import init
 
 def RTI_plotting(rti_data):
     
-    #TODO: remove
-    init.acqUTCtime = rti_data['acqUTCtime']
-
     #load the rti
     snrdB_map_i = rti_data['snrdB_map'][:, :, 0:-2]  #[time_idx, ch_idx, height_idx]
     timearray = rti_data['acqUTCtime'][:,0]

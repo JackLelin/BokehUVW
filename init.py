@@ -12,9 +12,6 @@ wind_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/
 
 specs_dir = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/"
 
-#TODO: remove
-acqUTCtime = None
-
 yyyy = "2017"
 mm = "04"
 dd = "20"
