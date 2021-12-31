@@ -109,7 +109,7 @@ def RTI_plotting(rti_data):
         dw = t_end-t_start
         dh = h_high-h_low
 
-        print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
+        # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
 
         for (i,plot) in zip(range(4),[plot_ch0,plot_ch1,plot_ch2,plot_ch3]):
             plot.image(image=[snrdB_map_i[idx:idx_next-1,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
@@ -122,11 +122,11 @@ def RTI_plotting(rti_data):
 def RTI():
 
     #load RTI datafile
-    rti_file = init.rti_gg_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
+    rti_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
     print("RTI path: " + rti_file)
     with np.load(rti_file) as g:
         RTI_plot = RTI_plotting(g)   
 
-    RTI_layout = row([column([RTI_plot, init.RTI_slider]), column(init.sps), column(init.textboxes)])
+    RTI_layout = column([RTI_plot, init.RTI_slider])
     
     return RTI_layout

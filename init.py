@@ -1,22 +1,25 @@
 from bokeh.models import  Select,  RangeSlider, Button, CustomJS
 from bokeh.io import curdoc
 import numpy as np
-from spc import spcs
+from spc import spctraConfig
 
 #initializing a dummy variable date just for the webpage to run, this is changed when the user selects a year and date
 
 print('init.py was run by bokeh ***********************')
 dname = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min"
-rti_gg_dir = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz"
-wind_dir = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/windmap2_{}.{}.{}.npz"
+rti_gg_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz"
+wind_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/windmap2_{}.{}.{}.npz"
 
+specs_dir = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/"
+
+#TODO: remove
 acqUTCtime = None
 
 yyyy = "2017"
 mm = "04"
 dd = "20"
 
-sps, textboxes = spcs('')
+spectra, textboxes = spctraConfig()
 
 t_min = 6
 t_max = 19

@@ -1,26 +1,21 @@
 from glob import glob1
-import time
+import calendar, time
 import numpy as np
 from bokeh.layouts import column, row, gridplot, Spacer, widgetbox
-from bokeh.models import Button, ColumnDataSource, Div, CrosshairTool, Range1d, ColumnDataSource, Div
+from bokeh.models import  ColumnDataSource, Div, CrosshairTool, Range1d, ColumnDataSource, Div
 from bokeh.plotting import figure
 from bokeh.io import curdoc
 
 import init
 
-"""Spectral plot model IDs."""
-sps_ids = [None, None, None, None]
-"""Spectral description model IDs."""
-sptext_ids = [None, None, None, None]
-
-def spcs(fname):
+def spctraConfig():
     channel = ['0', '1', '2', '3']
     sps = []
+
     for ch in range(4):
-        sp = figure(plot_height=200, plot_width=300, x_range = (x_l, x_r), y_range=(y_b, y_t), 
-                    title='Ch {}'.format(channel[ch]),
+        sp = figure(plot_height=200, plot_width=300, title='Ch {}'.format(channel[ch]),
                     toolbar_location='left', tools='box_zoom, pan, wheel_zoom, reset')
-        source = ColumnDataSource(data=dict(x=list(np.linspace(-12, 12, 64)), y=64*[0]))
+        source = ColumnDataSource(data=dict(x=list(np.linspace(-12, 12, 64)), y=64*[None]))
         # line 1 and line 3 are the gg fitting
         # line 2 and line 4 are the dot and line of the data
         sp.line(x='x', y='y', source=source, color='blue', name='line', alpha = .5 ,line_width = 5)
@@ -33,103 +28,63 @@ def spcs(fname):
         sp.grid.grid_line_color = None    
         sp.xaxis.axis_label = "Doppler speed (m/s)"
         sp.xaxis.axis_label_text_font_style = "normal"
-        sp.yaxis.axis_label = "PSD Magnitude"
+        sp.yaxis.axis_label = "PSD"
+        sp.toolbar.logo = None
+        sp.y_range.start = 0
 
-        sps += [sp]
-        sps_ids[ch] = sp.id
-        sps[0].toolbar.logo = None
-    for i in range(1,4):
-        sps[i].toolbar.logo = None
-        sps[i].toolbar_location = None
-        sps[i].x_range = sps[0].x_range
+        sps+=[sp]
+    for i in range(1,4): 
+        sps[i].toolbar_location = None   #remove the toolbar for ch1, ch2, ch3
+        sps[i].x_range = sps[0].x_range  #link the x_range of all sps
     
     """Get text boxes"""
     textboxes = []
     for ch in range(4):
-        textboxes += [Spacer(width=200, height=25)]
-        sptext = Div(text="Time = \t Height = \t V1 = <br> S1 = \t A1 = \t p1 = <\br> V2 = \t S2 = \t A2 = \t p2 =  <br> N = ")
-        sptext_ids[ch] = sptext.id
+        sptext = Div(text="V1 = <br> S1 = <br> A1 = <br> p1 = <br> V2 = <br> S2 = <br> A2 = <br> p2 =  <br> N = ", height=190)
+        # textboxes += [column([Spacer(width=200, height=25), sptext, Spacer(width=200,  height=50)])]
         textboxes += [sptext]
-        textboxes += [Spacer(width=200, height=100)]
+
     return sps, textboxes
 
 
 def windmap_handler(event):
-    global sps_ids
-    global sptext_ids
-    fig = curdoc().get_model_by_id(model_id=event._model_id)
-    date = fig.title.text[-10:]
-    init.yyyy = date[0:4]
-    init.mm = date[5:7]
-    init.dd = date[8:10]
-    
-    # yyyy = "2017"
-    # mm = "04"
-    # dd = "20"
-    """Retrieve spc data"""
-                      
-    spcpath = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/".format(init.yyyy, init.yyyy, init.mm, init.dd)
-    path    = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz".format(init.yyyy, init.yyyy, init.mm, init.dd)
-    fnames = sorted(glob1(spcpath,'{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
-    #gnames = sorted(glob1(path,'fit_{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
-    fms = [int(fname[11:13])*3600e3+int(fname[14:16])*60e3+int(fname[17:19])*1e3 for fname in fnames]
-    #gms = [int(gname[15:17])*3600e3+int(gname[18:20])*60e3+int(gname[21:23])*1e3 for gname in gnames]
-    offset = (fms[1]-fms[0])/2 
-    fname = fnames[np.argmin(abs(event.x*3600e3+offset-np.array(fms)))]
-    init.fname = fname
-    #gname = gnames[np.argmin(abs(event.x*3600e3+offset-np.array(gms)))]
-    spcfile = spcpath + fname 
-    
-    t_min = time.gmtime(int(init.acqUTCtime[0]))
-    t_start = (t_min.tm_hour*3600 + t_min.tm_min *60 + t_min.tm_sec )/3600 - 5
-    
-    sec = float(spcfile[-17:-15])
-    minute = float(spcfile[-20:-18])
-    hour = float(spcfile[-23:-21]) - t_start
-    print(hour)
-    
-    print(t_start)
-    time1 = 3600 * hour + 60 * minute + sec
-    time1 = np.floor(time1 / 60.48)
-    t = int(time1) + 1
-    f = np.load(spcfile) 
-    g = np.load(path) # g is fitsfile which is same as rti file
-    print("spcfile: " + spcfile)
-    print("fitsfile: " + path)
-    lst = g.files
-    '''for item in lst:
-        print(item)
-        print(g[item])'''
-    spc = f['spc']
-    #noise1=f['noise'] #from fit file
-    N = g['N_map']
+    #Retrieve spc data
+    cursortime = event.x*3600
+    cursorheight = event.y
 
-    hts = f['hts']     # seems useless
-    vel_arr = f['vel_arr']
-    hts = g['hts']
-    lsq1 = g['lsq1_map']
-    lsq2 = g['lsq2_map']
+    print('cursortime:',cursortime, 'cursorheight: ', cursorheight )
+    spcpath = init.specs_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
+    specsnames = sorted(glob1(spcpath,'{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
+
+    specs_time = np.array([int(fname[11:13])*3600+int(fname[14:16])*60+int(fname[17:19]) for fname in specsnames])
+    specsname = specsnames[np.argmin(np.abs( specs_time - cursortime ))]
+    specfile = spcpath + specsname
     
-    N = g['N_map']
-    dv = .3473
-    f.close()
-    offset = (hts[1]-hts[0])/2- .075
+    print(specfile)
+
+    with np.load(specfile) as specdata:
+        spec_hts = specdata['hts']
+        spec_vel_array = specdata['vel_arr']
+        spec_h_idx = np.argmin(np.abs(spec_hts - cursorheight))
+        print('height:', spec_hts[spec_h_idx])
+        spec = specdata['spc'][:,:,spec_h_idx] if specdata['spc'].shape[1] == 64 else specdata['spc'][:,spec_h_idx,:]
     
-    hidx = np.argmin(abs(hts+offset-event.y)) 
-    
-    h = hidx + 400
-    noise1 = N[t, :, hidx]
-    if spc.shape[2] == 64:
-        spc0 = spc[0, h, :]
-        spc1 = spc[1, h, :]
-        spc2 = spc[2, h, :]
-        spc3 = spc[3, h, :]
-    else:
-        spc0 = spc[0, :, h]
-        spc1 = spc[1, :, h]
-        spc2 = spc[2, :, h]
-        spc3 = spc[3, :, h]        
-    spcs = [spc0, spc1, spc2, spc3]
+    fit_gg_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
+    with np.load(fit_gg_file) as fitggdata:
+        gg_hts = fitggdata['hts']
+        gg_h_idx = np.argmin(np.abs(gg_hts - cursorheight))
+
+        # convert the UTC time to hours from 00:00 of the local time
+        gg_LC_sec = fitggdata['acqUTCtime'][:,0] - 5*3600 - calendar.timegm((int(init.yyyy), int(init.mm), int(init.dd), 0, 0, 0))
+        # print('gg_LC_sec', gg_LC_sec[0], 'cursortime', cursortime)
+        gg_t_idx = np.argmin(np.abs(gg_LC_sec - cursortime))
+        print('gg_fit_time', time.gmtime(fitggdata['acqUTCtime'][gg_t_idx,0]))
+        gg_lsq1 = fitggdata['lsq1_map'][gg_t_idx, :, gg_h_idx, :]
+        gg_lsq2 = fitggdata['lsq2_map'][gg_t_idx, :, gg_h_idx, :]
+
+        gg_noise = fitggdata['N_map'][gg_t_idx, :, gg_h_idx]
+
+    print('Noise:', gg_noise)
     v1 = np.zeros(4)
     s1 = np.zeros(4)
     a1 = np.zeros(4)
@@ -138,69 +93,73 @@ def windmap_handler(event):
     s2 = np.zeros(4)
     a2 = np.zeros(4)
     p2 = np.zeros(4)
-    dx = 8
-    fit = np.zeros((4, 64))
-    fit2 = np.zeros((4, 64))
-    vel = vel_arr
-    for ch in range(4):
-        if(np.isnan(noise1[ch])):
-            noise1[ch] = 1
-        v1[ch] = ((lsq1[t,ch, hidx, 0]-32)*.347)
-        s1[ch] = (lsq1[t,ch, hidx, 1]*.347)
-        a1[ch] = (lsq1[t,ch, hidx, 2]/N[t,ch, hidx])
-        p1[ch] = (lsq1[t,ch, hidx, 3])
-        v2[ch] = ((lsq2[t,ch, hidx, 0]-32)*.347)
-        s2[ch] = (lsq2[t,ch, hidx, 1]*.347)
-        a2[ch] = (lsq2[t,ch, hidx, 2]/N[t,ch, hidx])
-        p2[ch] = (lsq2[t,ch, hidx, 3])
-        print(v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch])
-        if(np.isnan(v1[ch])):
-            fit[ch, :] = 0 * np.abs(vel)
-        else:
-            inner = np.abs((vel - v1[ch])/s1[ch])
-            inner = -.5*np.power(inner, p1[ch])
-            fit[ch, :] = fit[ch, :] + a1[ch] * np.exp(inner)
-        if(np.isnan(v2[ch])):
-            fit2[ch, :] = 0 * np.abs(vel)
-        else: 
-            inner = np.abs((vel - v2[ch])/s2[ch])
-            inner = -.5*np.power(inner, p2[ch])
-            fit2[ch, :] = fit2[ch, :] + a2[ch] * np.exp(inner) 
 
+    snr_fit1 = [None] * 4
+    snr_fit2 = [None] * 4 
+    snr_spec = [None] * 4
+
+    for ch in range(4):
+
+        v1[ch] = (gg_lsq1[ch, 0] - 32) * 0.347
+        s1[ch] = gg_lsq1[ch, 1] * 0.347
+        a1[ch] = gg_lsq1[ch, 2] / gg_noise[ch]
+        p1[ch] = gg_lsq1[ch, 3]
+
+        v2[ch] = (gg_lsq2[ch, 0] - 32) * 0.347
+        s2[ch] = gg_lsq2[ch, 1] * 0.347
+        a2[ch] = gg_lsq2[ch, 2] / gg_noise[ch]
+        p2[ch] = gg_lsq2[ch, 3]
+
+        print('Channel:', ch, 'v1=', v1[ch], 's1=', s1[ch], 'a1=', a1[ch], 'p1=', p1[ch], 
+                        'v2=', v2[ch], 's2=', s2[ch], 'a2=', a2[ch], 'p2=', p2[ch])
+
+        if(np.isnan(v1[ch]) or np.isnan(gg_noise[ch])):
+            snr_fit1[ch] = np.ones_like(spec_vel_array)
+        else:
+            inner = np.abs((spec_vel_array - v1[ch])/s1[ch])
+            snr_fit1[ch] = a1[ch] * np.exp(-.5*np.power(inner, p1[ch])) + 1
+
+        if(np.isnan(v2[ch]) or np.isnan(gg_noise[ch])):
+            snr_fit2[ch] = np.ones_like(spec_vel_array)
+        else: 
+            inner = np.abs((spec_vel_array - v2[ch])/s2[ch])
+            snr_fit2[ch] = a2[ch] * np.exp(-.5*np.power(inner, p2[ch])) + 1
+
+        snr_spec[ch] = spec[ch,:] / gg_noise[ch] if not np.isnan(gg_noise[ch]) else spec[ch,:] / np.max(spec[ch,:])
+    
     """Update spectral figure models."""
     # line 1 and line 3 are the gg fitting
     # line 2 and line 4 are the dot and line of the data
     for ch in range(4):
-        spcfig = curdoc().get_model_by_id(model_id=sps_ids[ch])
+        spcfig = init.spectra[ch]
         """Clear plot beforehand."""
         line = spcfig.select(name='line')  
-        line.data_source.data['x'] = list(vel)
-        line.data_source.data['y'] = list(noise1[ch]*(fit[ch, :] + 1))
+        line.data_source.data['x'] = list(spec_vel_array)
+        line.data_source.data['y'] = list(snr_fit1[ch])
         
         line2 = spcfig.select(name='line2')  
-        line2.data_source.data['x'] = list(vel)
-        line2.data_source.data['y2'] = list(spcs[ch])
+        line2.data_source.data['x'] = list(spec_vel_array)
+        line2.data_source.data['y2'] = list(snr_spec[ch])
+
         line3 = spcfig.select(name='line3')  
-        line3.data_source.data['x'] = list(vel)
-        line3.data_source.data['y3'] = list(noise1[ch]*(fit2[ch, :] + 1))
+        line3.data_source.data['x'] = list(spec_vel_array)
+        line3.data_source.data['y3'] = list(snr_fit2[ch])
+
         line4 = spcfig.select(name='line4')  
-        line4.data_source.data['x'] = list(vel)
-        line4.data_source.data['y4'] = list(spcs[ch])
+        line4.data_source.data['x'] = list(spec_vel_array)
+        line4.data_source.data['y4'] = list(snr_spec[ch])
         #line4 = line4.fillna('')
         spcfig.y_range.start = 0
-        spcfig.y_range.end = noise1[ch] * max(max((fit[ch, :] + 1)), max((fit2[ch, :] + 1)), max(spcs[ch]/noise1[ch]))
+        spcfig.y_range.end = np.max(snr_spec[ch])
+        # spcfig.y_range.end = noise1[ch] * max(max((fit[ch, :] + 1)), max((fit2[ch, :] + 1)), max(spcs[ch]/noise1[ch]))
         
     """Update spectral texts models."""
     for ch in range(4):
-        sptext = curdoc().get_model_by_id(model_id=sptext_ids[ch])
-        sptext.text = "Time = {0}:{1}:{2} \t Height = {3:.2f} km <br> V1 = {4:.2f} m/s \t S1 = {5:.2f} m/s \t A1 = {6:.2f} \t p1 = {7:.2f} <br> V2 = {8:.2f} m/s \t S2 = {9:.2f} m/s \t A2 = {10:.2f} \t p2 = {11:.2f} <br> N = {12: .2f}".format(fname[11:13], fname[14:16], fname[17:19], hts[hidx], (lsq1[t, ch, hidx, 0]-32)*dv, lsq1[t, ch, hidx, 1]*dv, lsq1[t, ch, hidx, 2]/N[t, ch, hidx], lsq1[t, ch, hidx, 3], (lsq2[t, ch, hidx, 0]-32)*dv, lsq2[t, ch, hidx, 1]*dv, lsq2[t, ch, hidx, 2]/N[t, ch, hidx], lsq2[t, ch, hidx, 3], N[t, ch, hidx]/N[t, ch, hidx])
-    #print(init.radio_button_group.active)
+        spec = init.spectra[ch]
+        spec.title.text = 'Ch{0}, {1}:{2}:{3} LT, {4:.2f} km'.format(ch,specsname[11:13],specsname[14:16],specsname[17:19],gg_hts[gg_h_idx] )
+        sptext = init.textboxes[ch]
+        sptext.text = "V1 = {:.2f} m/s <br> S1 = {:.2f} <br> A1 = {:.2f} m/s <br> p1 = {:.2f} <br> V2 = {:.2f} m/s <br> S2 = {:.2f} <br> A2 = {:.2f} m/s <br> p2 = {:.2f} <br> N = {:.2f}".format(
+           v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch], np.nan if np.isnan(gg_noise[ch]) else 1) # gg_noise[ch] is not used, the plot is essentially SNR
     
-x_l = -12
-x_r = 12
-y_b = 0
-y_t = 100
-
-
         
  

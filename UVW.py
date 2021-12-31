@@ -95,7 +95,7 @@ def UVW_plotting(uvw_data):
         dw = t_end-t_start
         dh = h_high-h_low
 
-        print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
+        # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
 
         for (UVW, mapper, plot) in zip([U,V,W],[u_mapper,v_mapper,w_mapper],[U_plot,V_plot,W_plot]):
             plot.image(image=[UVW[idx:idx_next-1,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=mapper)    
@@ -118,12 +118,12 @@ def UVW_plotting(uvw_data):
     return UVW_plot
 
 def UVW():
-    mappath = init.wind_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
+    mappath = init.wind_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
     print("UVW path: " + mappath)
 
     #load data
     with np.load(mappath) as f:
         UVW_plot = UVW_plotting(f)
 
-    UVW_layout = row([column([UVW_plot,init.U_slider, init.V_slider, init.W_slider]), column(init.sps), column(init.textboxes)])
+    UVW_layout = column([UVW_plot, init.U_slider, init.V_slider, init.W_slider])
     return UVW_layout
