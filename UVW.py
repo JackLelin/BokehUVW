@@ -18,7 +18,7 @@ def UVW_plotting(uvw_data):
     V = uvw_data['V'] 
     W = uvw_data['W']
 
-    timearray = uvw_data['acqUTCtime'][:,0]
+    timearray = uvw_data['acqUTCtime'].flatten()
 
     hts = uvw_data['hts']
     h_low = min(hts) - .075

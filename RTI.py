@@ -16,7 +16,7 @@ def RTI_plotting(rti_data):
     
     #load the rti
     snrdB_map_i = rti_data['snrdB_map'][:, :, 0:-2]  #[time_idx, ch_idx, height_idx]
-    timearray = rti_data['acqUTCtime'][:,0]
+    timearray = rti_data['acqUTCtime'].flatten()
 
     hts = rti_data['hts']
     h_low = min(hts) - .075

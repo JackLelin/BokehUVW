@@ -59,8 +59,7 @@ def windmap_handler(event):
     specs_time = np.array([int(fname[11:13])*3600+int(fname[14:16])*60+int(fname[17:19]) for fname in specsnames])
     specsname = specsnames[np.argmin(np.abs( specs_time - cursortime ))]
     specfile = spcpath + specsname
-    
-    print(specfile)
+    print('specfile:', specfile)
 
     with np.load(specfile) as specdata:
         spec_hts = specdata['hts']
@@ -70,15 +69,16 @@ def windmap_handler(event):
         spec = specdata['spc'][:,:,spec_h_idx] if specdata['spc'].shape[1] == 64 else specdata['spc'][:,spec_h_idx,:]
     
     fit_gg_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
+
     with np.load(fit_gg_file) as fitggdata:
         gg_hts = fitggdata['hts']
         gg_h_idx = np.argmin(np.abs(gg_hts - cursorheight))
 
         # convert the UTC time to hours from 00:00 of the local time
-        gg_LC_sec = fitggdata['acqUTCtime'][:,0] - 5*3600 - calendar.timegm((int(init.yyyy), int(init.mm), int(init.dd), 0, 0, 0))
+        gg_LC_sec = fitggdata['acqUTCtime'].flatten() - 5*3600 - calendar.timegm((int(init.yyyy), int(init.mm), int(init.dd), 0, 0, 0))
         # print('gg_LC_sec', gg_LC_sec[0], 'cursortime', cursortime)
         gg_t_idx = np.argmin(np.abs(gg_LC_sec - cursortime))
-        print('gg_fit_time', time.gmtime(fitggdata['acqUTCtime'][gg_t_idx,0]))
+        print('gg_fit_time', time.gmtime(fitggdata['acqUTCtime'].flatten()[gg_t_idx]))
         gg_lsq1 = fitggdata['lsq1_map'][gg_t_idx, :, gg_h_idx, :]
         gg_lsq2 = fitggdata['lsq2_map'][gg_t_idx, :, gg_h_idx, :]
 
