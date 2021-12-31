@@ -6,9 +6,11 @@ import numpy as np
 from glob import glob1
 
 from spc import spctraConfig
+from start import Start_Page
 import init 
 
 class infoCarrier(object):
+
     def __init__(self):
         self.yyyy = "2017"
         self.mm = "04"
@@ -16,6 +18,8 @@ class infoCarrier(object):
 
         self.spectra, self.textboxes = spctraConfig()
 
+        self.thumbnail_layouts = None
+        
         # The x-range and y-range Range1D object for RTI plot and UVW plot. The ranges are initialized in page2.py
         # This way, the displayed range of RTI plot and UVW plot are tethered, zooming/dragging action will be synced between all plots
         # Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
@@ -27,10 +31,11 @@ class infoCarrier(object):
         def HomeReset(event):
             print('Button activated: resetting')
             curdoc().clear()
+            Start_Page(self)
 
         self.Home = Button(label='Home', width = 200, button_type="success")
         self.Home.on_click(HomeReset)
-        self.Home.js_on_click(CustomJS(args=dict(urls=[init.url]),code="""window.open(urls, "_self");"""))
+        # self.Home.js_on_click(CustomJS(args=dict(urls=[init.url]),code="""window.open(urls, "_self");"""))
 
  
         #Colorbars
@@ -42,7 +47,8 @@ class infoCarrier(object):
         self.U_slider = RangeSlider(start=init.u_low, end=init.u_high, value=(init.u_low, init.u_high), step=.1, title="Eastern Wind Range (m/s)", width = 300)
         self.V_slider = RangeSlider(start=init.v_low, end=init.v_high, value=(init.v_low, init.v_high), step=.1, title="Northern Wind Range (m/s)", width = 300)
         self.W_slider = RangeSlider(start=init.w_low, end=init.w_high, value=(init.w_low, init.w_high), step=.1, title="Upward Wind Range (m/s)", width = 300)
-    
+     
+
     def loadData(self):
         '''load RTI'''
         rti_gg_filename = init.rti_gg_files.format(self.yyyy, self.yyyy, self.mm, self.dd)

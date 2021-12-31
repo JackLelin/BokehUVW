@@ -1,7 +1,10 @@
 
 #initializing the constant and directory path
 
-url = 'https://remote1.ece.illinois.edu/test/MST3uvw_dev'
+url = 'https://remote1.ece.illinois.edu/JRO/MST3uvw'
+
+thumbnail_dir = "static/thumbnail_img/y{}/"
+thumbnail_url = "MST3uvw/static/thumbnail_img/y{}/{}"
 
 dname = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min"
 rti_gg_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/fitmap_{}.{}.{}.npz"
