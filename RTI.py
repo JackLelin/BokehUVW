@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import matplotlib as mpl
 import matplotlib.cm as cm
-from bokeh.layouts import column, row
+from bokeh.layouts import column
 from bokeh.models import  LinearColorMapper, ColorBar
 from bokeh.plotting import figure
 from bokeh.events import  Tap

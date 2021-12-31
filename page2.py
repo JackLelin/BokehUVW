@@ -8,6 +8,8 @@ from UVW import UVW
 
 def page2():
     init.spectra, init.textboxes = spc.spctraConfig()
+
+    # Clear the doc, removing all global objects from the doc
     curdoc().clear()
 
     #Add additional buttons here
@@ -15,10 +17,12 @@ def page2():
 
     Panels = RadioButtonGroup(labels=["RTI", "UVW"], active=0, width = 400)
 
+    # initializing the x_range, y_range
+    # Using the same Range1D objects for all plots is crucial to sync display area of all plots  
     init.x_r = Range1d(init.t_min, init.t_max)
     init.y_r = Range1d(init.h_min, init.h_max)
 
-    button_layout = row(Home, Panels)
+    Button_layout = row(Home, Panels)
        
     #RTI Layout
     RTI_plot = RTI()
@@ -27,19 +31,17 @@ def page2():
     #UVW Layout
     UVW_plot = UVW()
     UVW_layout = column([UVW_plot, init.UVW_color_menu])
-    
-    #Clear current document and add page2 w/RTI Tab
-    
+        
     # Spectra_layout = column([row([init.spectra[i], init.textboxes[i]]) for i in range(4)])
     Spectra_layout = row(column(init.spectra),column(init.textboxes))
     Plotting_layout = row([RTI_layout, Spectra_layout])
 
     page2_doc = curdoc()
-    page2_doc.add_root(button_layout)
+    page2_doc.add_root(Button_layout)
     page2_doc.add_root(Plotting_layout)
     
     def button_cb(attr, new, old):
-        
+        # Clear current document and add page2 w/RTI Tab
         if(Panels.active == 1): #This if block loads UVW layout and removes RTI
             Plotting_layout.children[0] = UVW_layout
         
@@ -47,16 +49,47 @@ def page2():
             Plotting_layout.children[0] = RTI_layout
     
     def plot_callback(attr, new, old):
-        
-        #Reload both tabs based on a change in slider or colorbar value
-        RTI_layout.children[0] = column(RTI())
-        UVW_layout.children[0] = column(UVW())
+        #Reload both tabs based on a change in colorbar value
+        RTI_layout.children[0] = RTI()
+        UVW_layout.children[0] = UVW()
     
     #Callbacks to changes in color menu or slider
-    
     init.RTI_color_menu.on_change('value', plot_callback)
     init.UVW_color_menu.on_change('value', plot_callback)
     
     Panels.on_change('active', button_cb)
 
         
+"""
++---------------------------------------------------------Doc root---------------------------------------------------------------------+
+|                                                                                                                                      |
+|     +------------------------------------------------Button_layout----row()----------------------------------------------------+     |
+|     |      |*******HOME*******|        |*****RTI*****|*****UVW*****|                                                           |     |
+|     +--------------------------------------------------------------------------------------------------------------------------+     |
+|                                                                                                                                      |
+|     +-----------------------------------------------Plotting_layout------row()-------------------------------------------------+     |
+|     |                                                                                                                          |     |
+|     |   +-------------RTI_Layout/UVW_Layout---column()---+         +------------------------Spectra_layout---row()----------+  |     |
+|     |   |                                                |         |  +------column()-------+      +-------column()------+  |  |     |
+|     |   |                                                |         |  |  *****Figure()****  |      |  ******Div()******  |  |  |     |
+|     |   |     +------return from--RTI()/UVW()-----+      |         |  |  *     Spec0     *  |      |  *     Text0     *  |  |  |     |
+|     |   |     |                                   |      |         |  |  *****************  |      |  *****************  |  |  |     |
+|     |   |     |                                   |      |         |  |                     |      |                     |  |  |     |
+|     |   |     |                                   |      |         |  |  *****Figure()****  |      |  ******Div()******  |  |  |     |
+|     |   |     |                                   |      |         |  |  *     Spec1     *  |      |  *     Text1     *  |  |  |     |
+|     |   |     |                                   |      |         |  |  *****************  |      |  *****************  |  |  |     |
+|     |   |     |                                   |      |         |  |                     |      |                     |  |  |     |
+|     |   |     |                                   |      |         |  |  *****Figure()****  |      |  ******Div()******  |  |  |     |
+|     |   |     +-----------------------------------+      |         |  |  *     Spec2     *  |      |  *     Text2     *  |  |  |     |
+|     |   |                                                |         |  |  *****************  |      |  *****************  |  |  |     |
+|     |   |                                                |         |  |                     |      |                     |  |  |     |
+|     |   |      ***RTI_color_menu/UVW_color_menu***       |         |  |  *****Figure()****  |      |  ******Div()******  |  |  |     |
+|     |   |      ************Select()***************       |         |  |  *     Spec3     *  |      |  *     Text3     *  |  |  |     |
+|     |   |      ***********************************       |         |  |  *****************  |      |  *****************  |  |  |     |
+|     |   |                                                |         |  +---------------------+      +---------------------+  |  |     |
+|     |   +------------------------------------------------+         +--------------------------------------------------------+  |     |
+|     |                                                                                                                          |     |
+|     +--------------------------------------------------------------------------------------------------------------------------+     |
+|                                                                                                                                      |
++--------------------------------------------------------------------------------------------------------------------------------------+
+"""

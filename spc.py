@@ -1,12 +1,13 @@
 from glob import glob1
 import calendar, time
 import numpy as np
-from bokeh.models import  ColumnDataSource, Div, ColumnDataSource, Div
+from bokeh.models import  ColumnDataSource, Div
 from bokeh.plotting import figure
 
 import init
 
 def spctraConfig():
+    # This function initialize four Figures and fout textboxes 
     channel = ['0', '1', '2', '3']
     sps = []
 
@@ -46,28 +47,37 @@ def spctraConfig():
 
 
 def windmap_handler(event):
-    #Retrieve spc data
-    cursortime = event.x*3600
-    cursorheight = event.y
-
+    # Obtain the height and time of the click location 
+    cursortime = event.x*3600   #time in sec
+    cursorheight = event.y      #height in km
     print('cursortime:',cursortime, 'cursorheight: ', cursorheight )
+
+    """Retrieve spc data"""
+    # Find all spectra file in the corresponding day
     spcpath = init.specs_dir.format(init.yyyy, init.yyyy, init.mm, init.dd)
     specsnames = sorted(glob1(spcpath,'{}.{}.{}.*.npz'.format(init.yyyy, init.mm, init.dd)))
-
+    
+    # We can obtain the time of spectra from the file name
     specs_time = np.array([int(fname[11:13])*3600+int(fname[14:16])*60+int(fname[17:19]) for fname in specsnames])
+    # Picking the correct file by time
     specsname = specsnames[np.argmin(np.abs( specs_time - cursortime ))]
     specfile = spcpath + specsname
     print('specfile:', specfile)
 
+    # Loading the spectrogram data
     with np.load(specfile) as specdata:
         spec_hts = specdata['hts']
         spec_vel_array = specdata['vel_arr']
+        # Picking the correct h_idx by height
         spec_h_idx = np.argmin(np.abs(spec_hts - cursorheight))
         print('height:', spec_hts[spec_h_idx])
+        # Indexing the spectra data
         spec = specdata['spc'][:,:,spec_h_idx] if specdata['spc'].shape[1] == 64 else specdata['spc'][:,spec_h_idx,:]
     
+    """Retrieve gg_fit parameters"""
     fit_gg_file = init.rti_gg_files.format(init.yyyy, init.yyyy, init.mm, init.dd)
 
+    # All gg_fit parameters are stored as map for a given day in one file
     with np.load(fit_gg_file) as fitggdata:
         gg_hts = fitggdata['hts']
         gg_h_idx = np.argmin(np.abs(gg_hts - cursorheight))
@@ -77,6 +87,8 @@ def windmap_handler(event):
         # print('gg_LC_sec', gg_LC_sec[0], 'cursortime', cursortime)
         gg_t_idx = np.argmin(np.abs(gg_LC_sec - cursortime))
         print('gg_fit_time', time.gmtime(fitggdata['acqUTCtime'].flatten()[gg_t_idx]))
+
+        # Using the t_idx and h_idx we obtain least_square_1 and least_square_2
         gg_lsq1 = fitggdata['lsq1_map'][gg_t_idx, :, gg_h_idx, :]
         gg_lsq2 = fitggdata['lsq2_map'][gg_t_idx, :, gg_h_idx, :]
 
@@ -97,15 +109,15 @@ def windmap_handler(event):
     snr_spec = [None] * 4
 
     for ch in range(4):
-
-        v1[ch] = (gg_lsq1[ch, 0] - 32) * 0.347
+        # The parameters of two generalized gaussian 
+        v1[ch] = (gg_lsq1[ch, 0] - 32) * 0.347 # Not sure where these factors come from -Lin Le 
         s1[ch] = gg_lsq1[ch, 1] * 0.347
-        a1[ch] = gg_lsq1[ch, 2] / gg_noise[ch]
+        a1[ch] = gg_lsq1[ch, 2] / gg_noise[ch] # plotting SNR
         p1[ch] = gg_lsq1[ch, 3]
 
-        v2[ch] = (gg_lsq2[ch, 0] - 32) * 0.347
+        v2[ch] = (gg_lsq2[ch, 0] - 32) * 0.347 # Not sure where these factors come from -Lin Le
         s2[ch] = gg_lsq2[ch, 1] * 0.347
-        a2[ch] = gg_lsq2[ch, 2] / gg_noise[ch]
+        a2[ch] = gg_lsq2[ch, 2] / gg_noise[ch] # plotting SNR
         p2[ch] = gg_lsq2[ch, 3]
 
         print('Channel:', ch, 'v1=', v1[ch], 's1=', s1[ch], 'a1=', a1[ch], 'p1=', p1[ch], 
@@ -125,12 +137,12 @@ def windmap_handler(event):
 
         snr_spec[ch] = spec[ch,:] / gg_noise[ch] if not np.isnan(gg_noise[ch]) else spec[ch,:] / np.max(spec[ch,:])
     
-    """Update spectral figure models."""
+    """Update spectral figure and fitting """
     # line 1 and line 3 are the gg fitting
     # line 2 and line 4 are the dot and line of the data
     for ch in range(4):
         spcfig = init.spectra[ch]
-        """Clear plot beforehand."""
+        
         line = spcfig.select(name='line')  
         line.data_source.data['x'] = list(spec_vel_array)
         line.data_source.data['y'] = list(snr_fit1[ch])
@@ -146,18 +158,18 @@ def windmap_handler(event):
         line4 = spcfig.select(name='line4')  
         line4.data_source.data['x'] = list(spec_vel_array)
         line4.data_source.data['y4'] = list(snr_spec[ch])
-        #line4 = line4.fillna('')
+       
         spcfig.y_range.start = 0
         spcfig.y_range.end = np.max(snr_spec[ch])
         # spcfig.y_range.end = noise1[ch] * max(max((fit[ch, :] + 1)), max((fit2[ch, :] + 1)), max(spcs[ch]/noise1[ch]))
         
-    """Update spectral texts models."""
+    """Update spectral texts """
     for ch in range(4):
         spec = init.spectra[ch]
         spec.title.text = 'Ch{0}, {1}:{2}:{3} LT, {4:.2f} km'.format(ch,specsname[11:13],specsname[14:16],specsname[17:19],gg_hts[gg_h_idx] )
         sptext = init.textboxes[ch]
         sptext.text = "V1 = {:.2f} m/s <br> S1 = {:.2f} <br> A1 = {:.2f} m/s <br> p1 = {:.2f} <br> V2 = {:.2f} m/s <br> S2 = {:.2f} <br> A2 = {:.2f} m/s <br> p2 = {:.2f} <br> N = {:.2f}".format(
-           v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch], np.nan if np.isnan(gg_noise[ch]) else 1) # gg_noise[ch] is not used, the plot is essentially SNR
+           v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch], np.nan if np.isnan(gg_noise[ch]) else 1) # gg_noise[ch] is not used, the plot is essentially SNR so noise level is always 1
     
         
  
