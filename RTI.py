@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.cm as cm
 from bokeh.layouts import column, row
-from bokeh.models import  LinearColorMapper, ColorBar, Range1d
+from bokeh.models import  LinearColorMapper, ColorBar
 from bokeh.plotting import figure
 from bokeh.events import  Tap
 
@@ -21,16 +21,14 @@ def RTI_plotting(rti_data):
     hts = rti_data['hts']
     h_low = min(hts) - .075
     h_high = max(hts) - .3 + .75
-   
-
+    
+    #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
+    x_r = init.x_r
+    y_r = init.y_r
+    
     color = init.RTI_color_menu.value
     snr_low,snr_high = init.RTI_slider.value
-    
-    #initialize the parameters for the windmaps
-
-    x_r = Range1d(init.t_min, init.t_max)
-    y_r = Range1d(init.h_min - .075, init.h_max - .075)
-    
+      
     #make default colorbar 
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
@@ -47,6 +45,7 @@ def RTI_plotting(rti_data):
     plot_ch2 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     plot_ch3 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     
+    # defining function to initialize and config every plot
     def RTIFigureConfig(figname, title):
         figname.border_fill_color = 'white'
         figname.background_fill_color = 'white'
@@ -72,15 +71,6 @@ def RTI_plotting(rti_data):
     plot_ch1.toolbar_location = None
     plot_ch2.toolbar_location = None
     plot_ch3.toolbar_location = None
-
-    
-    def rangeUpdateHandler(event):
-        init.t_max = plot_ch0.x_range.end
-        init.t_min = plot_ch0.x_range.start
-        init.h_max = plot_ch0.x_range.end
-        init.h_min = plot_ch0.x_range.start
-    
-    plot_ch0.on_event('RangesUpdate',rangeUpdateHandler)
         
     def RTISlideUpdateHandler(attr, new, old):
         c_mapper.update(low=init.RTI_slider.value[0], high=init.RTI_slider.value[1])
@@ -92,24 +82,29 @@ def RTI_plotting(rti_data):
     #numpy.nonzero() gives the index of the start of gap
     gap_index = ((timeinterval / np.median(timeinterval))>1.1).nonzero()[0] # numpy.nonzero() returns a tuple
     #plus 1 gives the index of the start of each acq session
-    acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start and end
-    
-    #load image in for p, q, r, s
+    acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start, the start of the first acq
+    acq_start_index[-1] = timearray.shape[0] # the length of the timearray at the end, the start of the additional imaginary acq
+
+    # The image is loaded segment by segment, for every continuous acq session
     for (idx,idx_next) in zip(acq_start_index[:-1],acq_start_index[1:]):
-        if idx_next == idx+1: continue
+        #idx is the index of current acq session
         time_start = time.gmtime(timearray[idx])
         t_start = (time_start.tm_hour*3600 + time_start.tm_min *60 + time_start.tm_sec )/3600 - 5
-        #idx_next is the index of next acq session, so idx_next-1 gives the end of last acq session
+
+        #idx_next is the index of next acq session, so idx_next-1 gives the index of end of last acq session
         time_end = time.gmtime(timearray[idx_next-1]) 
         t_end = (time_end.tm_hour*3600 + time_end.tm_min *60 + time_end.tm_sec )/3600 - 5
         t_end = t_end + 24 if t_end<t_start else t_end
-        dw = t_end-t_start
+
+        #t_end the the time of last the acq, we need to add the length of one acq to get the length of acq session
+        dw = t_end-t_start + np.median(timeinterval)/3600 
+
         dh = h_high-h_low
-
         # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
-
+        
+        #load image in for ch0, ch1, ch2, ch3
         for (i,plot) in zip(range(4),[plot_ch0,plot_ch1,plot_ch2,plot_ch3]):
-            plot.image(image=[snrdB_map_i[idx:idx_next-1,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
+            plot.image(image=[snrdB_map_i[idx:idx_next,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
 
     #make the windmap portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)

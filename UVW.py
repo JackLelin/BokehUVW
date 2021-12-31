@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.cm as cm
 from bokeh.layouts import column, row
-from bokeh.models import LinearColorMapper, ColorBar, Range1d, Range1d
+from bokeh.models import LinearColorMapper, ColorBar, Range1d
 from bokeh.plotting import figure
 from bokeh.events import Tap
 from bokeh.layouts import column
@@ -27,17 +27,23 @@ def UVW_plotting(uvw_data):
 
     date = init.yyyy + '.' + init.mm + '.' + init.dd
 
+    #reading the user selected slider value and color
     color = init.UVW_color_menu.value
     U_low,U_high = init.U_slider.value
     V_low,V_high = init.V_slider.value
     W_low,W_high = init.W_slider.value
 
-    x_r = Range1d(init.t_min, init.t_max)
-    y_r = Range1d(init.h_min, init.h_max)
+    #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
+    x_r = init.x_r
+    y_r = init.y_r
     
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
     RdBu_r_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]
+
+    #UVW plots has different value, different high and low value, thus three different color mapper
+    # each colormapper is tethered to both the actual plot and the corresponding colorbar
+    # changing the colormapper will change both the 'color' of the plot and the colorbar
 
     u_mapper = LinearColorMapper(palette=RdBu_r_palette, low=U_low, high=U_high)
     u_color_bar = ColorBar(color_mapper=u_mapper, location=(0, 0), title = 'm/s')
@@ -81,27 +87,34 @@ def UVW_plotting(uvw_data):
     #numpy.nonzero() gives the index of the start of gap
     gap_index = ((timeinterval / np.median(timeinterval))>1.1).nonzero()[0] # numpy.nonzero() returns a tuple
     #plus 1 gives the index of the start of each acq session
-    acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start and end
-    
+    acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start, the start of the first acq
+    acq_start_index[-1] = timearray.shape[0] # the length of the timearray at the end, the start of the additional imaginary acq
+
     #load image in for u, v, w
     for (idx,idx_next) in zip(acq_start_index[:-1],acq_start_index[1:]):
-        if idx_next == idx+1: continue
+        #idx is the index of current acq session
         time_start = time.gmtime(timearray[idx])
         t_start = (time_start.tm_hour*3600 + time_start.tm_min *60 + time_start.tm_sec )/3600 - 5
-        #idx_next is the index of next acq session, so idx_next-1 gives the end of last acq session
+
+        #idx_next is the index of next acq session, so idx_next-1 gives the index of end of last acq session
         time_end = time.gmtime(timearray[idx_next-1]) 
         t_end = (time_end.tm_hour*3600 + time_end.tm_min *60 + time_end.tm_sec )/3600 - 5
         t_end = t_end + 24 if t_end<t_start else t_end
-        dw = t_end-t_start
-        dh = h_high-h_low
 
+        #t_end the the time of last the acq, we need to add the length of one acq to get the length of acq session
+        dw = t_end - t_start + np.median(timeinterval)/3600 
+
+        dh = h_high-h_low
         # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
 
         for (UVW, mapper, plot) in zip([U,V,W],[u_mapper,v_mapper,w_mapper],[U_plot,V_plot,W_plot]):
-            plot.image(image=[UVW[idx:idx_next-1,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=mapper)    
+            #differnt from RTI plot, each UVW plot has its own color mapper
+            plot.image(image=[UVW[idx:idx_next,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=mapper)    
 
     UVW_plot = column(U_plot,V_plot,W_plot)
     
+    #Defining the handler for updating the UVW sliders
+    #Each slider corresponds to one colormapper
     def USlideUpdateHandler(attr, new, old):
         u_mapper.update(low=init.U_slider.value[0], high=init.U_slider.value[1])
     

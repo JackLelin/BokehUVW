@@ -1,10 +1,8 @@
 from glob import glob1
 import calendar, time
 import numpy as np
-from bokeh.layouts import column, row, gridplot, Spacer, widgetbox
-from bokeh.models import  ColumnDataSource, Div, CrosshairTool, Range1d, ColumnDataSource, Div
+from bokeh.models import  ColumnDataSource, Div, ColumnDataSource, Div
 from bokeh.plotting import figure
-from bokeh.io import curdoc
 
 import init
 

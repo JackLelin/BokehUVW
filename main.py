@@ -27,7 +27,7 @@ def year_images(year): #Generating Function of thumbnails
                           x_range=(0, 350), y_range=(0, 160),
                           active_drag=None,
                           toolbar_location=None)
-            tmap.image_url(url=["ValleyExp/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
+            tmap.image_url(url=["MST3uvw/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
                             w=[350], h=[160])
             tmap.grid.visible= False
             tmap.axis.visible= False
@@ -67,7 +67,7 @@ doc = curdoc()#initializing the document
 
 entry_layout = column()
 
-Title_txt = Div(text = 'Valley experiment at JRO', style={'font-size': '200%', 'color': 'black'}, width =1200)
+Title_txt = Div(text = 'Mesospheric Winds at JRO', style={'font-size': '200%', 'color': 'black'}, width =1200)
 Info_txt = Div(text = "This page contains a summary of the winds data measured at JRO during MST-ISR campaigns. To explore the data in an interactive mode click on the winds of the day of interest. By default the results shown are from the last analyzed year. Previous years can be selected using the drop-down list.")
 Secondary_txt = Div(text = "Click on a thumbnail image and then head click on a tab, to view the map", style={'font-size': '120%', 'color': 'black'}, width =1200)
 entry_layout.children += [column(Title_txt, Info_txt)]

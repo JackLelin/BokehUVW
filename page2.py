@@ -1,5 +1,5 @@
 from bokeh.layouts import column, row
-from bokeh.models import RadioButtonGroup, Button
+from bokeh.models import RadioButtonGroup, Range1d
 from bokeh.io import curdoc
 
 import init, spc
@@ -14,6 +14,9 @@ def page2():
     Home = init.Home
 
     Panels = RadioButtonGroup(labels=["RTI", "UVW"], active=0, width = 400)
+
+    init.x_r = Range1d(init.t_min, init.t_max)
+    init.y_r = Range1d(init.h_min, init.h_max)
 
     button_layout = row(Home, Panels)
        

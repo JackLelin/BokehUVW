@@ -1,6 +1,5 @@
 from bokeh.models import  Select,  RangeSlider, Button, CustomJS
 from bokeh.io import curdoc
-import numpy as np
 from spc import spctraConfig
 
 #initializing a dummy variable date just for the webpage to run, this is changed when the user selects a year and date
@@ -23,6 +22,12 @@ t_max = 19
 h_min = 60 - .15/2 #Offset for accuracy
 h_max = 89.7 + .15/2 #Offset for accuracy and maxed at 89.7 for UVW(2 less pts than RTI)
 
+# The x-range and y-range Range1D object for RTI plot and UVW plot. The ranges are initialized in page2.py
+# This way, the displayed range of RTI plot and UVW plot are tethered, zooming/dragging action will be synced between all plots
+# Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
+x_r = None
+y_r = None
+
 colors = ['RdBu', 'plasma', 'viridis', 'gray', 'jet', 'RdBu_r']
 
 def HomeReset(event):
@@ -31,7 +36,7 @@ def HomeReset(event):
 
 Home = Button(label='Home', width = 200, button_type="success")
 Home.on_click(HomeReset)
-Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
+Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/MST3uvw']),code="""window.open(urls, "_self");"""))
 
  
 #Colorbars
