@@ -39,7 +39,7 @@ Home.on_click(HomeReset)
 Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/MST3uvw']),code="""window.open(urls, "_self");"""))
 
  
-#Colorbars
+#Colormenus 
 UVW_color_menu = Select(options = colors, value = colors[0], title = 'Color', width = 500)
 RTI_color_menu = Select(options = colors, value = colors[-2], title = 'Color', width = 500)
 
