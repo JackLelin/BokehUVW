@@ -41,7 +41,7 @@ def page2():
             Plotting_layout.children[0] = UVW_layout
         
         elif(Panels.active == 0): #This elif block loads RTI and removes UVW
-            Plotting_layout.children[0] = RTI_plot
+            Plotting_layout.children[0] = RTI_layout
     
     def plot_callback(attr, new, old):
         

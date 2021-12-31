@@ -34,7 +34,7 @@ def HomeReset(event):
 
 Home = Button(label='Home', width = 200, button_type="success")
 Home.on_click(HomeReset)
-Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/test/ValleyExp_dev']),code="""window.open(urls, "_self");"""))
+Home.js_on_click(CustomJS(args=dict(urls=['https://remote1.ece.illinois.edu/JRO/ValleyExp']),code="""window.open(urls, "_self");"""))
 
  
 #Colorbars

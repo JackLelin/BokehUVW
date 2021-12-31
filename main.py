@@ -27,7 +27,7 @@ def year_images(year): #Generating Function of thumbnails
                           x_range=(0, 350), y_range=(0, 160),
                           active_drag=None,
                           toolbar_location=None)
-            tmap.image_url(url=["ValleyExp_dev/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
+            tmap.image_url(url=["ValleyExp/static/thumbnail_img/y"+year+"/"+imgs[3*i+v]], x=[0], y=[160],
                             w=[350], h=[160])
             tmap.grid.visible= False
             tmap.axis.visible= False
