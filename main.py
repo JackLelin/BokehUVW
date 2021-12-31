@@ -3,7 +3,7 @@ from carrier import infoCarrier
 
 
 # New infoCarrier object
-# Print the start page
+# Print the start page with new infoCarrier object
 Start_Page(infoCarrier())
 
 

@@ -16,8 +16,10 @@ class infoCarrier(object):
         self.mm = "04"
         self.dd = "20"
 
+        # initialize the spectra and textboxes
         self.spectra, self.textboxes = spctraConfig()
 
+        # Dictionary which stores all thumnails for each year, {year : year_images}
         self.thumbnail_layouts = None
 
         # The x-range and y-range Range1D object for RTI plot and UVW plot. The ranges are initialized in page2.py
@@ -28,6 +30,7 @@ class infoCarrier(object):
         self.x_r = Range1d(init.t_min, init.t_max)
         self.y_r = Range1d(init.h_min, init.h_max)
     
+        # Clicking the home button clear the current page, and re-place the start page
         def HomeReset(event):
             print('Button activated: resetting')
             curdoc().clear()
