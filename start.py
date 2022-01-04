@@ -13,8 +13,8 @@ def Start_Page(carrier):
     
     doc = curdoc()#initializing the document
     
-    def year_images(year): #Generating Function of thumbnails
-        #doc.remove_root(init.inital_maps)
+    def year_images(year): #Function of generating thumbnails for give year
+        
         imgs = sorted(glob1(init.thumbnail_dir.format(year), '*')) 
         """Plot images of the given year"""
         #init.RTI_layout = column()
@@ -74,7 +74,7 @@ def Start_Page(carrier):
     Info_txt = Div(text = "This page contains a summary of the winds data measured at JRO during MST-ISR campaigns. To explore the data in an interactive mode click on the winds of the day of interest. By default the results shown are from the last analyzed year. Previous years can be selected using the drop-down list.")
     Secondary_txt = Div(text = "Click on a thumbnail image and then head click on a tab, to view the map", style={'font-size': '120%', 'color': 'black'}, width =1200)
 
-    Intro_layout.children += [column(Title_txt, Info_txt)]
+    Intro_layout = column([Title_txt, Info_txt])
 
     dname = init.dname
     years = sorted(glob1(dname, "*"))
@@ -83,19 +83,61 @@ def Start_Page(carrier):
 
     year_select = Select(title='Select a year:', value=default_year, options=year_menu)
     year_select.on_change('value',year_select_handler)
-    Intro_layout.children += [year_select]
 
     doc.add_root(Intro_layout)
+    doc.add_root(year_select)
     doc.add_root(Secondary_txt)
 
+    # Create the dictionary thumbnail layouts which holds all the year_images
     if carrier.thumbnail_layouts is None:
         carrier.thumbnail_layouts = {year:year_images(year) for year in years}
 
     doc.add_root(carrier.thumbnail_layouts[default_year])
 
-    doc.title = "JRO Valley experiments"
+    doc.title = "JRO Mesosphere"
 
-
+"""
++----------------------------------------------------Start_Page()----------------------------------------------------------------------+
+|                                                                                                                                      |
+|     +------------------------------------------------Intro_layoutt----column{()------------------------------------------------+     |
+|     |      *******Title_txt*******                                                                                             |     |
+|     |                                                                                                                          |     |
+|     |      *******Info_txt********                                                                                             |     |
+|     +--------------------------------------------------------------------------------------------------------------------------+     |
+|                                                                                                                                      |
+|     +------Select----------+                                                                                                         |
+|     |year_select          v|                                                                                                         |
+|     +----------------------+                                                                                                         |
+|     +-----------------------------------------------Secondary_txt------Div-----------------------------------------------------+     |
+|     |                                                                                                                          |     |
+|     +--------------------------------------------------------------------------------------------------------------------------+     |
+|                                                                                                                                      |
+|     +-----------------------------------------------thumbnail_layouts[year]--------column()------------------------------------+     |
+|     |                                                                                                                          |     |
+|     |   +----------------------------------------------column()-------------------------------------------------------------+  |     |
+|     |   |   +-----------------------------------------------------row()--------------------------------------------------+  |  |     |
+|     |   |   | +---------------------------+       +----------------------------+           +--------------------------+  |  |  |     |
+|     |   |   | |     image                 |       |           image            |           |        imge              |  |  |  |     |
+|     |   |   | |                           |       |                            |           |                          |  |  |  |     |
+|     |   |   | +---------------------------+       +----------------------------+           +--------------------------+  |  |  |     |
+|     |   |   +------------------------------------------------------------------------------------------------------------+  |  |     |
+|     |   |                                                                                                                   |  |     |
+|     |   |   +-----------------------------------------------------row()--------------------------------------------------+  |  |     |
+|     |   |   | +---------------------------+       +----------------------------+           +--------------------------+  |  |  |     |
+|     |   |   | |     image                 |       |           image            |           |        imge              |  |  |  |     |
+|     |   |   | |                           |       |                            |           |                          |  |  |  |     |
+|     |   |   | +---------------------------+       +----------------------------+           +--------------------------+  |  |  |     |
+|     |   |   +------------------------------------------------------------------------------------------------------------+  |  |     |
+|     |   |                                                       *                                                           |  |     |
+|     |   |                                                       *                                                           |  |     |
+|     |   |                                                       *                                                           |  |     |
+|     |   |                                                                                                                   |  |     |
+|     |   +-------------------------------------------------------------------------------------------------------------------+  |     |
+|     |                                                                                                                          |     |
+|     +--------------------------------------------------------------------------------------------------------------------------+     |
+|                                                                                                                                      |
++--------------------------------------------------------------------------------------------------------------------------------------+
+"""
 
 
 

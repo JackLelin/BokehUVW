@@ -1,5 +1,5 @@
 from bokeh.layouts import column, row
-from bokeh.models import RadioButtonGroup
+from bokeh.models import RadioButtonGroup, Range1d
 
 import init, spc
 from RTI import RTI_plotting
@@ -14,6 +14,11 @@ def Page2(carrier):
     # The carrier loads all data
     carrier.loadData()
     carrier.spectra, carrier.textboxes = spc.spctraConfig()
+
+    # initializing the x_range, y_range
+    # Using the same Range1D objects for all plots is crucial to sync display area of all plots 
+    carrier.x_r = Range1d(init.t_min, init.t_max)
+    carrier.y_r = Range1d(init.h_min, init.h_max)
 
     #RTI Layout
     RTI_plot = RTI_plotting(carrier)

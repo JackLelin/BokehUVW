@@ -1,4 +1,4 @@
-from bokeh.models import  Select,  RangeSlider, Button, CustomJS, Range1d
+from bokeh.models import  Select,  RangeSlider, Button, Range1d
 from bokeh.io import curdoc
 
 import calendar
@@ -24,11 +24,10 @@ class infoCarrier(object):
 
         # The x-range and y-range Range1D object for RTI plot and UVW plot. The ranges are initialized in page2.py
         # This way, the displayed range of RTI plot and UVW plot are tethered, zooming/dragging action will be synced between all plots
-        # Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
-        # initializing the x_range, y_range
+        # Both RTI and UVW uses the same range for plotting, the ranges are stored in this class and initialized in page2.py
         # Using the same Range1D objects for all plots is crucial to sync display area of all plots  
-        self.x_r = Range1d(init.t_min, init.t_max)
-        self.y_r = Range1d(init.h_min, init.h_max)
+        self.x_r = None
+        self.y_r = None
     
         # Clicking the home button clear the current page, and re-place the start page
         def HomeReset(event):

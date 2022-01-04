@@ -72,10 +72,10 @@ def UVW_plotting(carrier):
         figname.on_event(Tap, windmap_handler)
         figname.add_layout(c_bar, 'right')
 
-    U_plot = figure(plot_height=200, plot_width=600, x_range = x_r, y_range= y_r,
+    U_plot = figure(plot_height=200, plot_width=605, x_range = x_r, y_range= y_r,
                tools='box_zoom,pan, reset, hover', active_drag="box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
-    V_plot = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
-    W_plot = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
+    V_plot = figure(plot_height=200, plot_width=605, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
+    W_plot = figure(plot_height=200, plot_width=605, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
 
     #config every plot
     UVWFigureConfig(U_plot, "Eastward Wind Map ", u_color_bar)
