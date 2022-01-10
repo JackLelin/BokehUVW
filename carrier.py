@@ -39,8 +39,8 @@ class infoCarrier(object):
         self.Home.on_click(HomeReset)
  
         #Colorbars
-        self.UVW_color_menu = Select(options = init.colors, value = init.colors[0], title = 'Color', width = 500)
-        self.RTI_color_menu = Select(options = init.colors, value = init.colors[-2], title = 'Color', width = 500)
+        self.UVW_color_menu = Select(options = init.colors, value = init.UVW_color, title = 'Color', width = 500)
+        self.RTI_color_menu = Select(options = init.colors, value = init.RTI_color, title = 'Color', width = 500)
 
         #sliders
         self.RTI_slider = RangeSlider(start=init.rti_low, end=init.rti_high, value=(init.rti_low, init.rti_high), step=.1, title="dB Range", width = 300)

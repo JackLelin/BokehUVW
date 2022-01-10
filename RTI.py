@@ -9,30 +9,30 @@ from bokeh.plotting import figure
 from bokeh.events import  Tap
 
 from spc import showFittingSpectra
-#for SNR tab, this returns the 4 beam plots and spcs
+#for SNR tab, this returns the 4 channel plots and 4 sliders
 
 def RTI_plotting(carrier):
     
-    #load the rti
     hts = carrier.rti_gg_hts
     timearray = carrier.rti_gg_timearray
    
-    #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
+    #Both RTI and UVW use the same range for plotting, the ranges are stored in init.py and initialized in page2.py
     x_r = carrier.x_r
     y_r = carrier.y_r
     
     color = carrier.RTI_color_menu.value
     snr_low,snr_high = carrier.RTI_slider.value
       
-    #make default colorbar 
+    #make colorbar 
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
-    RdBu_r_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]  
+    user_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]  
+    
     # plot_ch0, plot_ch1, plot_ch2, plot_ch3 use the same colorbar
-    c_mapper = LinearColorMapper(palette=RdBu_r_palette, low=snr_low, high=snr_high)
+    c_mapper = LinearColorMapper(palette=user_palette, low=snr_low, high=snr_high)
     color_bar = ColorBar(color_mapper=c_mapper, height=110, width=25, location=(0, 0), title = 'dB')
 
-    #plot_ch0, plot_ch1, plot_ch2, plot_ch3 are the plots for the 4 RTI windmaps
+    #plot_ch0, plot_ch1, plot_ch2, plot_ch3 are the plots for the 4 RTI maps
     #disable the logo, make default tool as box zoom,
     plot_ch0 = figure(plot_height=200, plot_width=600, x_range = x_r, y_range= y_r,
                 tools='box_zoom, pan, reset, hover', active_drag="box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")]) #tooltips gives the hover details
@@ -80,7 +80,7 @@ def RTI_plotting(carrier):
     carrier.RTI_slider.on_change('value', RTISlideUpdateHandler)
 
     timeinterval = timearray[1:] - timearray[:-1]
-    #larger than usual timeinterval indicates the start gap
+    #larger than usual timeinterval indicates the start of gap
     #numpy.nonzero() gives the index of the start of gap
     gap_index = ((timeinterval / np.median(timeinterval))>1.1).nonzero()[0] # numpy.nonzero() returns a tuple
     #plus 1 gives the index of the start of each acq session
@@ -110,7 +110,7 @@ def RTI_plotting(carrier):
         for (i,plot) in zip(range(4),[plot_ch0,plot_ch1,plot_ch2,plot_ch3]):
             plot.image(image=[carrier.snrdB_map_i[idx:idx_next,i,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=c_mapper)    
 
-    #make the windmap portion of RTI layout (called RTI plot)
+    #make three RTI plots portion of RTI layout (called RTI plot)
     RTI_plot = column(plot_ch0, plot_ch1, plot_ch2, plot_ch3)
 
     return column([RTI_plot, carrier.RTI_slider])

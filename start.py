@@ -11,9 +11,9 @@ from page2 import Page2
 # Function which prints the start page
 def Start_Page(carrier):
     
-    doc = curdoc()#initializing the document
-    
-    def year_images(year): #Function of generating thumbnails for give year
+    doc = curdoc() #pointer to the current document 
+
+    def year_images(year): #Function of generating thumbnails for a given year
         
         imgs = sorted(glob1(init.thumbnail_dir.format(year), '*')) 
         """Plot images of the given year"""

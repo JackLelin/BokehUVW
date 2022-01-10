@@ -1,5 +1,4 @@
-
-#initializing the constant and directory path
+# defining the constant and directory path
 
 thumbnail_dir = "static/thumbnail_img/y{}/"
 thumbnail_url = "MST3uvw/static/thumbnail_img/y{}/{}"
@@ -10,15 +9,19 @@ wind_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/
 
 specs_dir = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/"
 
+# initial plotting range of all plots 
 t_min = 6
 t_max = 19
-h_min = 60 - .15/2 #Offset for accuracy
-h_max = 89.7 + .15/2 #Offset for accuracy and maxed at 89.7 for UVW(2 less pts than RTI)
+h_min = 60 
+h_max = 89.7
 
 
 colors = ['RdBu', 'plasma', 'viridis', 'gray', 'jet', 'RdBu_r']
+# default color palette
+RTI_color = 'jet'
+UVW_color = 'RdBu'
 
-#slider range endpoints
+# slider range endpoints
 rti_low = -18
 rti_high = 10
 u_low = -80

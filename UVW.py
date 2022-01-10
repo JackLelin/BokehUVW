@@ -10,14 +10,9 @@ from bokeh.events import Tap
 
 from spc import showFittingSpectra
 
-#for SNR tab, this returns the 4 beam plots and spcs
+#for UVW tab, this returns three wind maps and three sliders
 
 def UVW_plotting(carrier):
-    # load UVW
-    U = carrier.U
-    V = carrier.V
-    W = carrier.W
-
     timearray = carrier.uvw_timearray
     hts = carrier.uvw_hts
 
@@ -29,25 +24,25 @@ def UVW_plotting(carrier):
     V_low,V_high = carrier.V_slider.value
     W_low,W_high = carrier.W_slider.value
 
-    #Both RTI and UVW uses the same range for plotting, the ranges are stored in init.py and initialized in page2.py
+    #Both RTI and UVW use the same range1d for plotting, the ranges are stored in init.py and initialized in page2.py
     x_r = carrier.x_r
     y_r = carrier.y_r
     
     colormap = copy.copy(cm.get_cmap(color))
     colormap.set_bad('darkgrey')
-    RdBu_r_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]
+    user_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]
 
-    #UVW plots has different value, different high and low value, thus three different color mapper
+    # UVW plot have different values, different high and low values, thus three different color mappers
     # each colormapper is tethered to both the actual plot and the corresponding colorbar
     # changing the colormapper will change both the 'color' of the plot and the colorbar
 
-    u_mapper = LinearColorMapper(palette=RdBu_r_palette, low=U_low, high=U_high)
+    u_mapper = LinearColorMapper(palette=user_palette, low=U_low, high=U_high)
     u_color_bar = ColorBar(color_mapper=u_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
-    v_mapper = LinearColorMapper(palette=RdBu_r_palette, low=V_low, high=V_high)
+    v_mapper = LinearColorMapper(palette=user_palette, low=V_low, high=V_high)
     v_color_bar = ColorBar(color_mapper=v_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
-    w_mapper = LinearColorMapper(palette=RdBu_r_palette, low=W_low, high=W_high)
+    w_mapper = LinearColorMapper(palette=user_palette, low=W_low, high=W_high)
     w_color_bar = ColorBar(color_mapper=w_mapper, height=110, width=25, location=(0, 0), title = 'm/s')
 
     def windmap_handler(event):
@@ -86,12 +81,12 @@ def UVW_plotting(carrier):
     W_plot.toolbar_location = None
     
     timeinterval = timearray[1:] - timearray[:-1]
-    #larger than usual timeinterval indicates the start gap
+    #larger than usual timeinterval indicates the start of gap
     #numpy.nonzero() gives the index of the start of gap
     gap_index = ((timeinterval / np.median(timeinterval))>1.1).nonzero()[0] # numpy.nonzero() returns a tuple
     #plus 1 gives the index of the start of each acq session
     acq_start_index = np.pad(gap_index+1,(1,1),'constant') # put 0 at the start, the start of the first acq
-    acq_start_index[-1] = timearray.shape[0] # the length of the timearray at the end, the start of the additional imaginary acq
+    acq_start_index[-1] = timearray.shape[0] # put the length of the timearray at the end, the start of the additional imaginary acq
 
     #load image in for u, v, w
     for (idx,idx_next) in zip(acq_start_index[:-1],acq_start_index[1:]):
@@ -112,7 +107,7 @@ def UVW_plotting(carrier):
         dh = h_high-h_low
         # print(idx,idx_next,t_start,t_end,h_high,h_low,dw,dh)
 
-        for (UVW, mapper, plot) in zip([U,V,W],[u_mapper,v_mapper,w_mapper],[U_plot,V_plot,W_plot]):
+        for (UVW, mapper, plot) in zip([carrier.U,carrier.V,carrier.W],[u_mapper,v_mapper,w_mapper],[U_plot,V_plot,W_plot]):
             #differnt from RTI plot, each UVW plot has its own color mapper
             plot.image(image=[UVW[idx:idx_next,:].T], x=t_start, y=h_low, dw=dw, dh=dh, color_mapper=mapper)    
 
