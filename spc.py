@@ -36,7 +36,9 @@ def spctraConfig():
     """Get text boxes"""
     textboxes = []
     for ch in range(4):
-        sptext = Div(text="V1 = <br> S1 = <br> A1 = <br> p1 = <br> V2 = <br> S2 = <br> A2 = <br> p2 =  <br> N = ", height=190)
+        sptext = Div(text=u"V\u2081 = <br> S\u2081 = <br> A\u2081 = <br> p\u2081 = <br> V\u2082 = <br> S\u2082 = <br> A\u2082 = <br> p\u2082 =  <br> N = ",
+                     height=190,
+                     style={"font-family":"Roman"})
         # textboxes += [column([Spacer(width=200, height=25), sptext, Spacer(width=200,  height=50)])]
         textboxes += [sptext]
 
@@ -102,7 +104,7 @@ def showFittingSpectra(carrier, cursortime, cursorheight):
         p2[ch] = gg_lsq2[ch, 3]
 
         print('Channel:', ch, 'v1=', v1[ch], 's1=', s1[ch], 'a1=', a1[ch], 'p1=', p1[ch], 
-                        'v2=', v2[ch], 's2=', s2[ch], 'a2=', a2[ch], 'p2=', p2[ch])
+                              'v2=', v2[ch], 's2=', s2[ch], 'a2=', a2[ch], 'p2=', p2[ch])
 
         if(np.isnan(v1[ch]) or np.isnan(gg_noise[ch])):
             snr_fit1[ch] = np.ones_like(spec_vel_array)
@@ -149,7 +151,7 @@ def showFittingSpectra(carrier, cursortime, cursorheight):
         spec = carrier.spectra[ch]
         spec.title.text = 'Ch{0}, {1}:{2}:{3} LT, {4:.2f} km'.format(ch,specsname[11:13],specsname[14:16],specsname[17:19],gg_hts[gg_h_idx] )
         sptext = carrier.textboxes[ch]
-        sptext.text = "V1 = {:.2f} m/s <br> S1 = {:.2f} <br> A1 = {:.2f} m/s <br> p1 = {:.2f} <br> V2 = {:.2f} m/s <br> S2 = {:.2f} <br> A2 = {:.2f} m/s <br> p2 = {:.2f} <br> N = {:.2f}".format(
+        sptext.text = u"V\u2081 = {:.2f} m/s <br> S\u2081 = {:.2f} m/s <br> A\u2081 = {:.2f} <br> p\u2081 = {:.2f} <br> V\u2082 = {:.2f} m/s <br> S\u2082 = {:.2f} m/s <br> A\u2082 = {:.2f} <br> p\u2082 = {:.2f} <br> N = {:.2f}".format(
            v1[ch], s1[ch], a1[ch], p1[ch], v2[ch], s2[ch], a2[ch], p2[ch], np.nan if np.isnan(gg_noise[ch]) else 1) # gg_noise[ch] is not used, the plot is essentially SNR so noise level is always 1
     
         

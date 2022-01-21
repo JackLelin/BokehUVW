@@ -79,9 +79,8 @@ def Start_Page(carrier):
     dname = init.dname
     years = sorted(glob1(dname, "*"))
     year_menu = [(year, year) for year in years]
-    default_year = carrier.yyyy
 
-    year_select = Select(title='Select a year:', value=default_year, options=year_menu)
+    year_select = Select(title='Select a year:', value=init.default_year, options=year_menu)
     year_select.on_change('value',year_select_handler)
 
     doc.add_root(Intro_layout)
@@ -92,7 +91,7 @@ def Start_Page(carrier):
     if carrier.thumbnail_layouts is None:
         carrier.thumbnail_layouts = {year:year_images(year) for year in years}
 
-    doc.add_root(carrier.thumbnail_layouts[default_year])
+    doc.add_root(carrier.thumbnail_layouts[init.default_year])
 
     doc.title = "JRO Mesosphere"
 

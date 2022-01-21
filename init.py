@@ -9,6 +9,8 @@ wind_files = "/rd2/MST_ISR_EEJ_cont/processed/mesosphere/fit_gg/spc1min/{}/Maps/
 
 specs_dir = "/rd2/MST_ISR_EEJ_cont/processed/MST/spc/y{}/spc1min/{}.{}.{}/"
 
+default_year = '2017'
+
 # initial plotting range of all plots 
 t_min = 6
 t_max = 19
