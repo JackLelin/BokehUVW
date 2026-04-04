@@ -3,7 +3,7 @@
 ## Start the bokeh server
 
 In ternimal at the bokeh project directory type  
-`pythonn3 -m bokeh serve [name of folder] --allow-websocket-origin=remote1.ece.illinois.edu --port=[port number] --prefix=[prefix]`
+`python3 -m bokeh serve [name of folder] --allow-websocket-origin=remote1.ece.illinois.edu --port=[port number] --prefix=[prefix]`
 
 The website will be `https://remote1.ece.illinois.edu/[prefix]/[name of folder]`
 

@@ -22,9 +22,8 @@ def Start_Page(carrier):
         for i in range(0, len(imgs)//3):
             tmaps = []
             for v in range(3):
-                tmap = figure(plot_width=350, plot_height=160,
+                tmap = figure(width=350, height=160,
                             title=imgs[3*i+v],
-                            x_range=(0, 350), y_range=(0, 160),
                             active_drag=None,
                             toolbar_location=None)
                 tmap.image_url(url=[init.thumbnail_url.format(year,imgs[3*i+v])], x=[0], y=[160],
@@ -46,19 +45,19 @@ def Start_Page(carrier):
         doc.add_root(carrier.thumbnail_layouts[new])
 
     def thumbnail_effect1_handler(event): #Function that highlights black around thumbnail when mouse hovers
-        fig = curdoc().get_model_by_id(model_id=event._model_id)
+        fig = event.model
         if fig is not None:
-            print(event._model_id)
+            # print(event._model_id)
             fig.outline_line_color = 'black'
         
     def thumbnail_effect2_handler(event): #Function that takes away that black outline when mouse leaves thumbnail
-        fig = curdoc().get_model_by_id(model_id=event._model_id)
+        fig = event.model
         if fig is not None:
             fig.outline_line_color = None
 
     def thumbnail_click_handler(event):
-        figname = curdoc().get_model_by_id(model_id=event._model_id) #extract user selection
-        print(figname.title.text)
+        figname = event.model #extract user selection
+        # print(figname.title.text)
 
         date = figname.title.text[5:15]
         carrier.yyyy = date[0:4]
@@ -70,9 +69,9 @@ def Start_Page(carrier):
 
     Intro_layout = column()
 
-    Title_txt = Div(text = 'Mesospheric Winds at JRO', style={'font-size': '200%', 'color': 'black'}, width =1200)
+    Title_txt = Div(text = 'Mesospheric Winds at JRO', styles={'font-size': '200%', 'color': 'black'}, width =1200)
     Info_txt = Div(text = "This page contains a summary of the winds data measured at JRO during MST-ISR campaigns. To explore the data in an interactive mode click on the winds of the day of interest. By default the results shown are from the last analyzed year. Previous years can be selected using the drop-down list.")
-    Secondary_txt = Div(text = "Click on a thumbnail image and then head click on a tab, to view the map", style={'font-size': '120%', 'color': 'black'}, width =1200)
+    Secondary_txt = Div(text = "Click on a thumbnail image and then head click on a tab, to view the map", styles={'font-size': '120%', 'color': 'black'}, width =1200)
 
     Intro_layout = column([Title_txt, Info_txt])
 

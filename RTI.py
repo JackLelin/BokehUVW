@@ -25,7 +25,6 @@ def RTI_plotting(carrier):
       
     #make colorbar 
     colormap = copy.copy(cm.get_cmap(color))
-    colormap.set_bad('darkgrey')
     user_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]  
     
     # plot_ch0, plot_ch1, plot_ch2, plot_ch3 use the same colorbar
@@ -34,11 +33,11 @@ def RTI_plotting(carrier):
 
     #plot_ch0, plot_ch1, plot_ch2, plot_ch3 are the plots for the 4 RTI maps
     #disable the logo, make default tool as box zoom,
-    plot_ch0 = figure(plot_height=200, plot_width=600, x_range = x_r, y_range= y_r,
-                tools='box_zoom, pan, reset, hover', active_drag="box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")]) #tooltips gives the hover details
-    plot_ch1 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
-    plot_ch2 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
-    plot_ch3 = figure(plot_height=200, plot_width=600, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
+    plot_ch0 = figure(height=200, width=600, x_range=x_r, y_range=y_r,
+                tools="pan, reset, hover, box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")]) #tooltips gives the hover details
+    plot_ch1 = figure(height=200, width=600, x_range=x_r, y_range=y_r, tools="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
+    plot_ch2 = figure(height=200, width=600, x_range=x_r, y_range=y_r, tools="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
+    plot_ch3 = figure(height=200, width=600, x_range=x_r, y_range=y_r, tools="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("SNR", "@image")])
     
     def RTI_map_handler(event):
         # Obtain the height and time of the click location 

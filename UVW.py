@@ -29,7 +29,6 @@ def UVW_plotting(carrier):
     y_r = carrier.y_r
     
     colormap = copy.copy(cm.get_cmap(color))
-    colormap.set_bad('darkgrey')
     user_palette = [mpl.colors.rgb2hex(m) for m in colormap(np.arange(colormap.N))]
 
     # UVW plot have different values, different high and low values, thus three different color mappers
@@ -67,10 +66,10 @@ def UVW_plotting(carrier):
         figname.on_event(Tap, windmap_handler)
         figname.add_layout(c_bar, 'right')
 
-    U_plot = figure(plot_height=200, plot_width=605, x_range = x_r, y_range= y_r,
-               tools='box_zoom,pan, reset, hover', active_drag="box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
-    V_plot = figure(plot_height=200, plot_width=605, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
-    W_plot = figure(plot_height=200, plot_width=605, x_range=x_r, y_range=y_r, active_drag="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
+    U_plot = figure(height=200, width=605, x_range = x_r, y_range= y_r,
+               tools="box_zoom,pan, reset, hover, box_zoom", toolbar_location='left', tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
+    V_plot = figure(height=200, width=605, x_range=x_r, y_range=y_r, tools="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
+    W_plot = figure(height=200, width=605, x_range=x_r, y_range=y_r, tools="box_zoom", tooltips = [("x", "$x"),("y", "$y"), ("m/s", "@image")])
 
     #config every plot
     UVWFigureConfig(U_plot, "Eastward Wind Map ", u_color_bar)

@@ -9,13 +9,13 @@ def spctraConfig():
     sps = []
 
     for ch in range(4):
-        sp = figure(plot_height=200, plot_width=300, title='Ch {}'.format(channel[ch]),
+        sp = figure(height=200, width=300, title='Ch {}'.format(channel[ch]),
                     toolbar_location='left', tools='box_zoom, pan, wheel_zoom, reset')
         source = ColumnDataSource(data=dict(x=list(np.linspace(-12, 12, 64)), y=64*[None]))
         # line 1 and line 3 are the gg fitting
         # line 2 and line 4 are the dot and line of the data
         sp.line(x='x', y='y', source=source, color='blue', name='line', alpha = .5 ,line_width = 5)
-        sp.circle(x='x', y='y2', source=source, color='green', name='line2')
+        sp.scatter(x='x', y='y2', size=4, source=source, color='green', name='line2')
         sp.line(x='x', y='y3', source=source, color='red', name='line3', alpha = .5, line_width = 5)
         sp.line(x='x', y='y4', source=source, color='green', name='line4')
         sp.border_fill_color = 'white'
@@ -38,7 +38,7 @@ def spctraConfig():
     for ch in range(4):
         sptext = Div(text=u"V\u2081 = <br> S\u2081 = <br> A\u2081 = <br> p\u2081 = <br> V\u2082 = <br> S\u2082 = <br> A\u2082 = <br> p\u2082 =  <br> N = ",
                      height=190,
-                     style={"font-family":"Roman"})
+                     styles={"font-family":"Roman"})
         # textboxes += [column([Spacer(width=200, height=25), sptext, Spacer(width=200,  height=50)])]
         textboxes += [sptext]
 
@@ -62,7 +62,8 @@ def showFittingSpectra(carrier, cursortime, cursorheight):
         print('height:', spec_hts[spec_h_idx])
         # Indexing the spectra data
         spec = specdata['spc'][:,:,spec_h_idx] if specdata['spc'].shape[1] == 64 else specdata['spc'][:,spec_h_idx,:]
-    
+        npts = spec_vel_array.shape[0] #number of fft points
+
     """Retrieve gg_fit parameters"""
     # All gg_fit parameters are stored as map for a given day in one file
     gg_hts = carrier.rti_gg_hts
@@ -91,15 +92,25 @@ def showFittingSpectra(carrier, cursortime, cursorheight):
     snr_fit2 = [None] * 4 
     snr_spec = [None] * 4
 
+    # Generalized gaussian function
+    def gg_func(vel, V, S, A, P):
+        return A * np.exp(-.5*np.power(np.abs((vel - V)/S), P))
+
+    # Generalized gaussian function with aliasing 
+    def gg_alias_func(vel, V, S, A, P):
+        dv = vel[1] - vel[0]
+        return gg_func(vel - npts*dv, V, S, A, P) + gg_func(vel, V, S, A, P) + gg_func(vel + npts*dv, V, S, A, P)
+ 
+ 
     for ch in range(4):
         # The parameters of two generalized gaussian 
-        v1[ch] = (gg_lsq1[ch, 0] - 32) * 0.347 # Not sure where these factors come from -Lin Le 
-        s1[ch] = gg_lsq1[ch, 1] * 0.347
+        v1[ch] = (gg_lsq1[ch, 0] / (npts/2) - 1) * np.abs(spec_vel_array[0])
+        s1[ch] = gg_lsq1[ch, 1] / (npts/2) * np.abs(spec_vel_array[0])
         a1[ch] = gg_lsq1[ch, 2] / gg_noise[ch] # plotting SNR
         p1[ch] = gg_lsq1[ch, 3]
 
-        v2[ch] = (gg_lsq2[ch, 0] - 32) * 0.347 # Not sure where these factors come from -Lin Le
-        s2[ch] = gg_lsq2[ch, 1] * 0.347
+        v2[ch] = (gg_lsq2[ch, 0] / (npts/2) - 1) * np.abs(spec_vel_array[0])
+        s2[ch] = gg_lsq2[ch, 1] / (npts/2) * np.abs(spec_vel_array[0])
         a2[ch] = gg_lsq2[ch, 2] / gg_noise[ch] # plotting SNR
         p2[ch] = gg_lsq2[ch, 3]
 
@@ -109,14 +120,12 @@ def showFittingSpectra(carrier, cursortime, cursorheight):
         if(np.isnan(v1[ch]) or np.isnan(gg_noise[ch])):
             snr_fit1[ch] = np.ones_like(spec_vel_array)
         else:
-            inner = np.abs((spec_vel_array - v1[ch])/s1[ch])
-            snr_fit1[ch] = a1[ch] * np.exp(-.5*np.power(inner, p1[ch])) + 1
+            snr_fit1[ch] = 1 + gg_alias_func(spec_vel_array, v1[ch], s1[ch], a1[ch], p1[ch])
 
         if(np.isnan(v2[ch]) or np.isnan(gg_noise[ch])):
             snr_fit2[ch] = np.ones_like(spec_vel_array)
         else: 
-            inner = np.abs((spec_vel_array - v2[ch])/s2[ch])
-            snr_fit2[ch] = a2[ch] * np.exp(-.5*np.power(inner, p2[ch])) + 1
+            snr_fit2[ch] = 1 + gg_alias_func(spec_vel_array, v2[ch], s2[ch], a2[ch], p2[ch])
 
         snr_spec[ch] = spec[ch,:] / gg_noise[ch] if not np.isnan(gg_noise[ch]) else spec[ch,:] / np.max(spec[ch,:])
     
