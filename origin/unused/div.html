@@ -1,0 +1,86 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.4.0.min.js"></script>
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.4.0.min.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="5cb5570d-d4ad-4706-b506-f9949840b96c" data-root-id="2177"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="2178">
+          {"06aaa924-a613-4cf9-9598-9e229a9310cf":{"roots":{"references":[{"attributes":{"height":100,"text":"Your &lt;a href=\"https://en.wikipedia.org/wiki/HTML\"&gt;HTML&lt;/a&gt;-supported text is initialized with the &lt;b&gt;text&lt;/b&gt; argument.  The\nremaining div arguments are &lt;b&gt;width&lt;/b&gt; and &lt;b&gt;height&lt;/b&gt;. For this example, those values\nare &lt;i&gt;200&lt;/i&gt; and &lt;i&gt;100&lt;/i&gt; respectively.","width":200},"id":"2177","type":"Div"}],"root_ids":["2177"]},"title":"Bokeh Application","version":"1.4.0"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  var docs_json = document.getElementById('2178').textContent;
+                  var render_items = [{"docid":"06aaa924-a613-4cf9-9598-9e229a9310cf","roots":{"2177":"5cb5570d-d4ad-4706-b506-f9949840b96c"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    var attempts = 0;
+                    var timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        clearInterval(timer);
+                        embed_document(root);
+                      } else {
+                        attempts++;
+                        if (attempts > 100) {
+                          clearInterval(timer);
+                          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        }
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>

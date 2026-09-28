@@ -1,0 +1,86 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        
+        
+          
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.1.1.min.js" integrity="sha384-kLr4fYcqcSpbuI95brIH3vnnYCquzzSxHPU6XGQCIkQRGJwhg0StNbj1eegrHs12" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.1.1.min.js" integrity="sha384-xIGPmVtaOm+z0BqfSOMn4lOR6ciex448GIKG4eE61LsAvmGj48XcMQZtKcE/UXZe" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("info");
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="12173d2f-3354-4749-9846-a42e5713d02d" data-root-id="1002"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="1004">
+          {"5d2084f3-1287-476f-9ebb-b2c5f9ec8fc5":{"roots":{"references":[{"attributes":{"button_type":"warning","icon":null,"label":"MST years","menu":[["2005","2005"],["2006","2006"],["2007","2007"],["2009","2009"],["2014","2014"],["2015","2015"],["2016","2016"],["2017","2017"],["2019","2019"]],"subscribed_events":["button_click","menu_item_click"]},"id":"1002","type":"Dropdown"}],"root_ids":["1002"]},"title":"Bokeh Application","version":"2.1.1"}}
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              Bokeh.safely(function() {
+                (function(root) {
+                  function embed_document(root) {
+                    
+                  var docs_json = document.getElementById('1004').textContent;
+                  var render_items = [{"docid":"5d2084f3-1287-476f-9ebb-b2c5f9ec8fc5","root_ids":["1002"],"roots":{"1002":"12173d2f-3354-4749-9846-a42e5713d02d"}}];
+                  root.Bokeh.embed.embed_items(docs_json, render_items);
+                
+                  }
+                  if (root.Bokeh !== undefined) {
+                    embed_document(root);
+                  } else {
+                    var attempts = 0;
+                    var timer = setInterval(function(root) {
+                      if (root.Bokeh !== undefined) {
+                        clearInterval(timer);
+                        embed_document(root);
+                      } else {
+                        attempts++;
+                        if (attempts > 100) {
+                          clearInterval(timer);
+                          console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                        }
+                      }
+                    }, 10, root)
+                  }
+                })(window);
+              });
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>
